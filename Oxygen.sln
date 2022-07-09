@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32126.317
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oxygen", "Oxygen\Oxygen.csproj", "{0ABC37A2-5285-4D57-A253-1A147759D46D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0ABC37A2-5285-4D57-A253-1A147759D46D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ABC37A2-5285-4D57-A253-1A147759D46D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ABC37A2-5285-4D57-A253-1A147759D46D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ABC37A2-5285-4D57-A253-1A147759D46D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {08DABF53-24F4-415F-AEFF-9CF3838351F4}
+	EndGlobalSection
+EndGlobal
