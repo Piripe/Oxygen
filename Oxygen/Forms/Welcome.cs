@@ -30,6 +30,8 @@ namespace Oxygen
             Global.SkinData = null;
 
             Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "Oxygen"));
+
+            localSkinRadioButton.Checked = true;
         }
 
         private void selectLocalSkinButton_Click(object sender, EventArgs e)

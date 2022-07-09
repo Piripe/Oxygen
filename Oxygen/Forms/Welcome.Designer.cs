@@ -91,7 +91,6 @@
             this.localSkinRadioButton.Name = "localSkinRadioButton";
             this.localSkinRadioButton.Size = new System.Drawing.Size(120, 25);
             this.localSkinRadioButton.TabIndex = 0;
-            this.localSkinRadioButton.TabStop = true;
             this.localSkinRadioButton.Text = "Select locally";
             this.localSkinRadioButton.UseVisualStyleBackColor = true;
             this.localSkinRadioButton.CheckedChanged += new System.EventHandler(this.localSkinRadioButton_CheckedChanged);
@@ -104,7 +103,6 @@
             this.internetSkinRadioButton.Name = "internetSkinRadioButton";
             this.internetSkinRadioButton.Size = new System.Drawing.Size(208, 25);
             this.internetSkinRadioButton.TabIndex = 1;
-            this.internetSkinRadioButton.TabStop = true;
             this.internetSkinRadioButton.Text = "Select from the interwebz";
             this.internetSkinRadioButton.UseVisualStyleBackColor = true;
             this.internetSkinRadioButton.CheckedChanged += new System.EventHandler(this.internetSkinRadioButton_CheckedChanged);
