@@ -60,7 +60,7 @@ namespace Oxygen.Modules
                 {
                     // Evaluate the condition
                     string toDetect = s.Remove(0, ifSearch.Index + ifSearch.Length);
-                    if ((bool)JSEngine.Evaluate(ifSearch.Groups[2].Value).ToObject())
+                    if (bool.Parse(JSEngine.Evaluate(ifSearch.Groups[2].Value).ToString()))
                     {
                         // If it's true, detect for the next else/end and process between the current condition position and the else/end position
                         Match detectedElse = DetectIf("ELSEIFENDIF",toDetect);
@@ -93,7 +93,7 @@ namespace Oxygen.Modules
                                 // If it's an elseif, evaluate its condition
 
                                 toDetect = toDetect.Remove(0, detectedElse.Index + detectedElse.Length);
-                                if ((bool)JSEngine.Evaluate(ifSearch.Groups[2].Value).ToObject())
+                                if (bool.Parse(JSEngine.Evaluate(ifSearch.Groups[2].Value).ToString()))
                                 {
                                     // If it's true, detect for the next else/end and process between the current condition position and the else/end position
                                     detectedElse = DetectIf("ELSEIFENDIF", toDetect);

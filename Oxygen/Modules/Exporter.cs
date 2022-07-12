@@ -218,7 +218,7 @@ namespace Oxygen.Modules
                     XAttribute renderCondition = tgaInfos.Attributes().ToList().Find((x) => x.Name == "if");
                     if (renderCondition != null)
                     {
-                        if ((bool)JSEngine.Evaluate(renderCondition.Value).ToObject() == true) RenderImage(rootWorkingPath, destinationFile, XMLFileLocation, tgaInfos, JSEngine);
+                        if (bool.Parse(JSEngine.Evaluate(renderCondition.Value).ToString()) == true) RenderImage(rootWorkingPath, destinationFile, XMLFileLocation, tgaInfos, JSEngine);
                     }
                     else
                     {
@@ -236,7 +236,7 @@ namespace Oxygen.Modules
                     renderCondition = tgaInfos.Attributes().ToList().Find((x) => x.Name == "if");
                     if (renderCondition != null)
                     {
-                        if ((bool)JSEngine.Evaluate(renderCondition.Value).ToObject() == true) RenderImgs();
+                        if (bool.Parse(JSEngine.Evaluate(renderCondition.Value).ToString()) == true) RenderImgs();
                     }
                     else
                     {
@@ -255,7 +255,7 @@ namespace Oxygen.Modules
                     renderCondition = tgaInfos.Attributes().ToList().Find((x) => x.Name == "if");
                     if (renderCondition != null)
                     {
-                        if ((bool)JSEngine.Evaluate(renderCondition.Value).ToObject() == true) RenderDir();
+                        if (bool.Parse(JSEngine.Evaluate(renderCondition.Value).ToString()) == true) RenderDir();
                     }
                     else
                     {
@@ -416,7 +416,7 @@ namespace Oxygen.Modules
                 XAttribute renderCondition = tgaInfo.Attributes().ToList().Find((x) => x.Name == "if");
                 if (renderCondition != null)
                 {
-                    bool result = (bool)JSEngine.Evaluate(renderCondition.Value).ToObject();
+                    bool result = bool.Parse(JSEngine.Evaluate(renderCondition.Value).ToString());
                     if (result)
                     {
                         RenderSrc();

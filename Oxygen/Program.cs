@@ -15,6 +15,7 @@ namespace Oxygen
         [STAThread]
         static void Main(string[] args)
         {
+            Console.WriteLine(string.Join(" ",args));
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
