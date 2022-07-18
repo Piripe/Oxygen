@@ -88,7 +88,7 @@ namespace Oxygen.Modules
                 string destinationFile = vguiFile.Replace(Path.Combine(rootWorkingPath, "skin"), Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", Global.SkinData.Title.Split(Path.GetInvalidFileNameChars()))));
 
                 Directory.CreateDirectory(Path.GetDirectoryName(destinationFile));
-                File.WriteAllText(destinationFile, Preprocessor.PreProcess(File.ReadAllText(vguiFile),JSEngine));
+                File.WriteAllText(destinationFile, Preprocessor.PreProcess(File.ReadAllText(vguiFile), vguiFile.Replace(Path.Combine(rootWorkingPath, "skin"),"").Remove(0,1), JSEngine));
             }
 
             Task.Factory.StartNew(() => {
@@ -274,172 +274,218 @@ namespace Oxygen.Modules
         /// <param name="JSEngine"></param>
         private static void RenderImage(string rootWorkingPath, string destinationFile, string XMLFileLocation, XElement tgaInfos, Jint.Engine JSEngine)
         {
-            Bitmap resultImage = new Bitmap(int.Parse(tgaInfos.Attribute("width").Value), int.Parse(tgaInfos.Attribute("height").Value));
-            Graphics g = Graphics.FromImage(resultImage);
-
-            // Render each source one by one (<src>)
-            foreach (XElement tgaInfo in tgaInfos.Elements())
+            string file = XMLFileLocation.Replace(Path.Combine(rootWorkingPath, "skin"), "").Remove(0, 1);
+            string destfile = destinationFile.Replace(Path.Combine(rootWorkingPath, "export", string.Join("_", Global.SkinData.Title.Split(Path.GetInvalidFileNameChars()))), "").Remove(0, 1);
+            try
             {
-                void RenderSrc()
+                if (int.TryParse(tgaInfos.Attribute("width").Value, out int imageWidth))
                 {
-                    using (Image img = Bitmap.FromFile(tgaInfo.Value.StartsWith("~/") ? Path.Combine(rootWorkingPath, "skin", tgaInfo.Value.Remove(0, 2)) : Path.Combine(Path.GetDirectoryName(XMLFileLocation), Path.GetFileNameWithoutExtension(XMLFileLocation), tgaInfo.Value)))
+                    if (imageWidth < 1)
                     {
-                        List<XAttribute> attrs = tgaInfo.Attributes().ToList();
-                        XAttribute colorOrigin = attrs.Find((x) => x.Name == "color");
-
-                        // Set the offset
-                        XAttribute offsetAttr = attrs.Find((x) => x.Name == "offset");
-                        Point offset = new Point(0, 0);
-                        if (offsetAttr != null)
+                        ErrorManager.Error("\"width\" Attribute must be positive.", file, destfile);
+                        return;
+                    }
+                    if (int.TryParse(tgaInfos.Attribute("height").Value, out int imageHeight))
+                    {
+                        if (imageHeight < 1)
                         {
-                            string[] offsetStr = offsetAttr.Value.Split(' ');
-                            offset = new Point(int.Parse(JSEngine.Evaluate(offsetStr[0]).ToString()), int.Parse(JSEngine.Evaluate(offsetStr[1]).ToString()));
+                            ErrorManager.Error("\"height\" Attribute must be positive.", file, destfile);
+                            return;
                         }
+                        Bitmap resultImage = new Bitmap(imageWidth, imageHeight);
+                        Graphics g = Graphics.FromImage(resultImage);
 
-
-                        if (colorOrigin == null)
+                        // Render each source one by one (<src>)
+                        foreach (XElement tgaInfo in tgaInfos.Elements())
                         {
-                            // Draw directly the image if the color attribute is not specified
-                            g.DrawImage(img, new Rectangle(offset, img.Size));
-                        }
-                        else
-                        {
-                            // Get the color function
-                            Match match = Regex.Match(colorOrigin.Value, @"(horizontal-gradient|vertical-gradient)\(([^)]+)\)");
-                            if (match.Success)
+                            void RenderSrc()
                             {
-                                string[] matchArgs = match.Groups[2].Value.Split(',');
-                                switch (match.Groups[1].Value)
+                                string sourcePath = tgaInfo.Value.StartsWith("~/") ? Path.Combine(rootWorkingPath, "skin", tgaInfo.Value.Remove(0, 2)) : Path.Combine(Path.GetDirectoryName(XMLFileLocation), Path.GetFileNameWithoutExtension(XMLFileLocation), tgaInfo.Value);
+                                if (!File.Exists(sourcePath))
                                 {
-                                    case "horizontal-gradient":
-                                        // Draw the image with an horizontal gradient (Honestly I'm too tired to explain how it work)
-                                        Bitmap gradientColors = new Bitmap(img.Width, 1);
-                                        Graphics gradientG = Graphics.FromImage(gradientColors);
-                                        if (matchArgs.Length == 4)
+                                    ErrorManager.Error($"The image \"{sourcePath.Replace(Path.Combine(rootWorkingPath, "skin"), "").Remove(0, 1)}\" must exist.", file, destfile);
+                                    return;
+                                }
+                                using (Image img = Bitmap.FromFile(sourcePath))
+                                {
+                                    List<XAttribute> attrs = tgaInfo.Attributes().ToList();
+                                    XAttribute colorOrigin = attrs.Find((x) => x.Name == "color");
+
+                                    // Set the offset
+                                    XAttribute offsetAttr = attrs.Find((x) => x.Name == "offset");
+                                    Point offset = new Point(0, 0);
+                                    if (offsetAttr != null)
+                                    {
+                                        string[] offsetStr = offsetAttr.Value.Split(' ');
+                                        int offsetX = 0;
+                                        int offsetY = 0;
+                                        if (!(int.TryParse(offsetStr[0], out offsetX) & int.TryParse(offsetStr[1], out offsetY))) ErrorManager.Error($"\"offset\" Attribute must be two numbers", file, destfile);
+
+                                        offset = new Point(offsetX, offsetY);
+                                    }
+
+
+                                    if (colorOrigin == null)
+                                    {
+                                        // Draw directly the image if the color attribute is not specified
+                                        g.DrawImage(img, new Rectangle(offset, img.Size));
+                                    }
+                                    else
+                                    {
+                                        // Get the color function
+                                        Match match = Regex.Match(colorOrigin.Value, @"(horizontal-gradient|vertical-gradient)\(([^)]+)\)");
+                                        if (match.Success)
                                         {
-                                            Point point1 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[0]).ToString()), 0);
-                                            Point point2 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[1]).ToString()), 0);
-                                            Color color1 = (Color)JSEngine.Evaluate(matchArgs[2]).ToObject();
-                                            Color color2 = (Color)JSEngine.Evaluate(matchArgs[3]).ToObject();
-                                            if (point1.X - point2.X == 0)
+                                            string[] matchArgs = match.Groups[2].Value.Split(',');
+                                            switch (match.Groups[1].Value)
                                             {
-                                                gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
-                                                gradientG.FillRectangle(new SolidBrush(color2), point2.X, 0, img.Width - point2.X, 1);
-                                            }
-                                            else
-                                            {
-                                                LinearGradientBrush gradientBrush = new LinearGradientBrush(point1, point2, color1, color2);
-                                                gradientBrush.GammaCorrection = true;
-                                                gradientG.FillRectangle(gradientBrush, point1.X, 0, point2.X - point1.X + 1, 1);
-                                                gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
-                                                gradientG.FillRectangle(new SolidBrush(color2), point2.X + 1, 0, img.Width - point2.X, 1);
+                                                case "horizontal-gradient":
+                                                    // Draw the image with an horizontal gradient (Honestly I'm too tired to explain how it work)
+                                                    Bitmap gradientColors = new Bitmap(img.Width, 1);
+                                                    Graphics gradientG = Graphics.FromImage(gradientColors);
+                                                    if (matchArgs.Length == 4)
+                                                    {
+                                                        Point point1 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[0]).ToString()), 0);
+                                                        Point point2 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[1]).ToString()), 0);
+                                                        Color color1 = (Color)JSEngine.Evaluate(matchArgs[2]).ToObject();
+                                                        Color color2 = (Color)JSEngine.Evaluate(matchArgs[3]).ToObject();
+                                                        if (point1.X - point2.X == 0)
+                                                        {
+                                                            gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
+                                                            gradientG.FillRectangle(new SolidBrush(color2), point2.X, 0, img.Width - point2.X, 1);
+                                                        }
+                                                        else
+                                                        {
+                                                            LinearGradientBrush gradientBrush = new LinearGradientBrush(point1, point2, color1, color2);
+                                                            gradientBrush.GammaCorrection = true;
+                                                            gradientG.FillRectangle(gradientBrush, point1.X, 0, point2.X - point1.X + 1, 1);
+                                                            gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
+                                                            gradientG.FillRectangle(new SolidBrush(color2), point2.X + 1, 0, img.Width - point2.X, 1);
+                                                        }
+                                                    }
+                                                    else if (matchArgs.Length == 2)
+                                                    {
+                                                        LinearGradientBrush gradientBrush = new LinearGradientBrush(new Point(int.Parse(JSEngine.Evaluate(matchArgs[0]).ToString()), 0), new Point(int.Parse(JSEngine.Evaluate(matchArgs[1]).ToString()), 0), (Color)JSEngine.Evaluate(matchArgs[2]).ToObject(), (Color)JSEngine.Evaluate(matchArgs[3]).ToObject());
+                                                        gradientG.FillRectangle(gradientBrush, 0, 0, img.Width, 1);
+                                                    }
+                                                    for (int j = 0; j < img.Width; j++)
+                                                    {
+                                                        Color color = gradientColors.GetPixel(j, 0);
+
+                                                        ImageAttributes imageAttributes = new ImageAttributes();
+
+                                                        ColorMatrix colorMatrix = new ColorMatrix(getColorMatrix(color));
+
+                                                        imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                                                        g.DrawImage(img, new Rectangle(offset.X + j, offset.Y, 1, img.Height), j, 0, 1, img.Height, GraphicsUnit.Pixel, imageAttributes);
+                                                    }
+                                                    break;
+                                                case "vertical-gradient":
+                                                    // Draw the image with a vertical gradient (Works exactly like the horizontal gradient)
+                                                    gradientColors = new Bitmap(img.Height, 1);
+                                                    gradientG = Graphics.FromImage(gradientColors);
+                                                    if (matchArgs.Length == 2)
+                                                    {
+                                                        LinearGradientBrush gradientBrush = new LinearGradientBrush(new Point(0, 0), new Point(img.Height, 0), (Color)JSEngine.Evaluate(matchArgs[0]).ToObject(), (Color)JSEngine.Evaluate(matchArgs[1]).ToObject());
+                                                        gradientG.FillRectangle(gradientBrush, 0, 0, img.Height, 1);
+                                                    }
+                                                    else if (matchArgs.Length == 4)
+                                                    {
+                                                        Point point1 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[0]).ToString()), 0);
+                                                        Point point2 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[1]).ToString()), 0);
+                                                        Color color1 = (Color)JSEngine.Evaluate(matchArgs[2]).ToObject();
+                                                        Color color2 = (Color)JSEngine.Evaluate(matchArgs[3]).ToObject();
+                                                        if (point1.X - point2.X == 0)
+                                                        {
+                                                            gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
+                                                            gradientG.FillRectangle(new SolidBrush(color2), point2.X, 0, img.Height - point2.X, 1);
+                                                        }
+                                                        else
+                                                        {
+                                                            LinearGradientBrush gradientBrush = new LinearGradientBrush(point1, point2, color1, color2);
+                                                            gradientBrush.GammaCorrection = true;
+                                                            gradientG.FillRectangle(gradientBrush, point1.X, 0, point2.X - point1.X + 1, 1);
+                                                            gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
+                                                            gradientG.FillRectangle(new SolidBrush(color2), point2.X + 1, 0, img.Height - point2.X, 1);
+                                                        }
+                                                    }
+
+                                                    for (int j = 0; j < img.Height; j++)
+                                                    {
+                                                        Color color = gradientColors.GetPixel(j, 0);
+
+                                                        ImageAttributes imageAttributes = new ImageAttributes();
+
+                                                        ColorMatrix colorMatrix = new ColorMatrix(getColorMatrix(color));
+
+                                                        imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                                                        g.DrawImage(img, new Rectangle(offset.X, offset.Y + j, img.Width, 1), 0, j, img.Width, 1, GraphicsUnit.Pixel, imageAttributes);
+                                                    }
+                                                    break;
                                             }
                                         }
-                                        else if (matchArgs.Length == 2)
+                                        else
                                         {
-                                            LinearGradientBrush gradientBrush = new LinearGradientBrush(new Point(int.Parse(JSEngine.Evaluate(matchArgs[0]).ToString()), 0), new Point(int.Parse(JSEngine.Evaluate(matchArgs[1]).ToString()), 0), (Color)JSEngine.Evaluate(matchArgs[2]).ToObject(), (Color)JSEngine.Evaluate(matchArgs[3]).ToObject());
-                                            gradientG.FillRectangle(gradientBrush, 0, 0, img.Width, 1);
-                                        }
-                                        for (int j = 0; j < img.Width; j++)
-                                        {
-                                            Color color = gradientColors.GetPixel(j, 0);
+                                            // Draw the image with the specified color
+                                            Color color = (Color)JSEngine.Evaluate(colorOrigin.Value).ToObject();
 
                                             ImageAttributes imageAttributes = new ImageAttributes();
 
                                             ColorMatrix colorMatrix = new ColorMatrix(getColorMatrix(color));
 
                                             imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                                            g.DrawImage(img, new Rectangle(offset.X + j, offset.Y, 1, img.Height), j, 0, 1, img.Height, GraphicsUnit.Pixel, imageAttributes);
+                                            g.DrawImage(img, new Rectangle(offset, img.Size), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imageAttributes);
                                         }
-                                        break;
-                                    case "vertical-gradient":
-                                        // Draw the image with a vertical gradient (Works exactly like the horizontal gradient)
-                                        gradientColors = new Bitmap(img.Height, 1);
-                                        gradientG = Graphics.FromImage(gradientColors);
-                                        if (matchArgs.Length == 2)
-                                        {
-                                            LinearGradientBrush gradientBrush = new LinearGradientBrush(new Point(0, 0), new Point(img.Height, 0), (Color)JSEngine.Evaluate(matchArgs[0]).ToObject(), (Color)JSEngine.Evaluate(matchArgs[1]).ToObject());
-                                            gradientG.FillRectangle(gradientBrush, 0, 0, img.Height, 1);
-                                        }
-                                        else if (matchArgs.Length == 4)
-                                        {
-                                            Point point1 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[0]).ToString()), 0);
-                                            Point point2 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[1]).ToString()), 0);
-                                            Color color1 = (Color)JSEngine.Evaluate(matchArgs[2]).ToObject();
-                                            Color color2 = (Color)JSEngine.Evaluate(matchArgs[3]).ToObject();
-                                            if (point1.X - point2.X == 0)
-                                            {
-                                                gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
-                                                gradientG.FillRectangle(new SolidBrush(color2), point2.X, 0, img.Height - point2.X, 1);
-                                            }
-                                            else
-                                            {
-                                                LinearGradientBrush gradientBrush = new LinearGradientBrush(point1, point2, color1, color2);
-                                                gradientBrush.GammaCorrection = true;
-                                                gradientG.FillRectangle(gradientBrush, point1.X, 0, point2.X - point1.X + 1, 1);
-                                                gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
-                                                gradientG.FillRectangle(new SolidBrush(color2), point2.X + 1, 0, img.Height - point2.X, 1);
-                                            }
-                                        }
+                                    }
+                                }
+                            }
 
-                                        for (int j = 0; j < img.Height; j++)
-                                        {
-                                            Color color = gradientColors.GetPixel(j, 0);
-
-                                            ImageAttributes imageAttributes = new ImageAttributes();
-
-                                            ColorMatrix colorMatrix = new ColorMatrix(getColorMatrix(color));
-
-                                            imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                                            g.DrawImage(img, new Rectangle(offset.X, offset.Y + j, img.Width, 1), 0, j, img.Width, 1, GraphicsUnit.Pixel, imageAttributes);
-                                        }
-                                        break;
+                            // Conditionnal rendering : Render the source only if the condition is true
+                            XAttribute renderCondition = tgaInfo.Attributes().ToList().Find((x) => x.Name == "if");
+                            if (renderCondition != null)
+                            {
+                                bool result = bool.Parse(JSEngine.Evaluate(renderCondition.Value).ToString());
+                                if (result)
+                                {
+                                    RenderSrc();
                                 }
                             }
                             else
                             {
-                                // Draw the image with the specified color
-                                Color color = (Color)JSEngine.Evaluate(colorOrigin.Value).ToObject();
-
-                                ImageAttributes imageAttributes = new ImageAttributes();
-
-                                ColorMatrix colorMatrix = new ColorMatrix(getColorMatrix(color));
-
-                                imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                                g.DrawImage(img, new Rectangle(offset, img.Size), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imageAttributes);
+                                RenderSrc();
                             }
+
+                        }
+                        // Create the destination folder
+                        Directory.CreateDirectory(Path.GetDirectoryName(destinationFile));
+                        if (Path.GetExtension(destinationFile).ToLower() == ".tga")
+                        {
+                            // Export as TGA
+                            TGASharpLib.TGA tga = TGASharpLib.TGA.FromBitmap(resultImage);
+                            tga.Save(destinationFile);
+                        }
+                        else
+                        {
+                            // Export as any other format supported by GDI+
+                            resultImage.Save(destinationFile);
                         }
                     }
-                }
-
-                // Conditionnal rendering : Render the source only if the condition is true
-                XAttribute renderCondition = tgaInfo.Attributes().ToList().Find((x) => x.Name == "if");
-                if (renderCondition != null)
-                {
-                    bool result = bool.Parse(JSEngine.Evaluate(renderCondition.Value).ToString());
-                    if (result)
+                    else
                     {
-                        RenderSrc();
+                        ErrorManager.Error("\"height\" Attribute must be a number.", file, destfile);
+                        return;
                     }
                 }
                 else
                 {
-                    RenderSrc();
+                    ErrorManager.Error("\"width\" Attribute must be a number.", file, destfile);
+                    return;
                 }
-
             }
-            // Create the destination folder
-            Directory.CreateDirectory(Path.GetDirectoryName(destinationFile));
-            if (Path.GetExtension(destinationFile).ToLower() == ".tga")
+            catch (Exception ex)
             {
-                // Export as TGA
-                TGASharpLib.TGA tga = TGASharpLib.TGA.FromBitmap(resultImage);
-                tga.Save(destinationFile);
-            }
-            else
-            {
-                // Export as any other format supported by GDI+
-                resultImage.Save(destinationFile);
+                    ErrorManager.Error(ex.Message, file, destfile);
+                    return;
             }
         }
 

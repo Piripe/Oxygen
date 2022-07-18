@@ -268,6 +268,7 @@ namespace Oxygen.Modules
             Console.Write("Oxygen");
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine($" version {Global.Version}");
+            Global.ErrorConsole.AddLine(ErrorManager.LogType.Info, $"Oxygen version {Global.Version}", "Oxygen", "Startup");
         }
     }
 }

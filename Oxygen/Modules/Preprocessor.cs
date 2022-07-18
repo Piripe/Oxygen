@@ -17,24 +17,32 @@ namespace Oxygen.Modules
         /// <param name="s"></param>
         /// <param name="JSEngine"></param>
         /// <returns></returns>
-        internal static string PreProcess(string s, Jint.Engine JSEngine)
+        internal static string PreProcess(string s, string file, Jint.Engine JSEngine)
         {
-            string processedStr = ProcessIf(s, JSEngine);
+            string processedStr = ProcessIf(s, file, JSEngine);
 
             // Replace all ${x} with the evaluated result
             processedStr = Regex.Replace(processedStr, @"\${([^}]*)}",(Match x) =>
             {
-                object result = JSEngine.Evaluate(x.Groups[1].Value).ToObject();
+                try
+                {
+                    object result = JSEngine.Evaluate(x.Groups[1].Value).ToObject();
                     if (result.GetType() == typeof(Color))
                     {
                         // Exception for the Color because Steam uses a weird color code and it's simpler for the skin developer
                         Color color = (Color)result;
-                        return string.Format("{0} {1} {2} {3}",color.R, color.G, color.B, color.A);
+                        return string.Format("{0} {1} {2} {3}", color.R, color.G, color.B, color.A);
                     }
                     else
                     {
                         return result.ToString();
                     }
+                }
+                catch (Exception ex)
+                {
+                    ErrorManager.Error(ex.Message, file);
+                    return "";
+                }
             });
 
             return processedStr;
@@ -45,9 +53,12 @@ namespace Oxygen.Modules
         /// <param name="s"></param>
         /// <param name="JSEngine"></param>
         /// <returns></returns>
-        private static string ProcessIf(string s, Jint.Engine JSEngine)
+        private static string ProcessIf(string s, string file, Jint.Engine JSEngine)
         {
-            string result = "";
+
+            try
+            {
+                string result = "";
 
             // Get the first #IF/#ELSEIF/#ELSE/#ENDIF
             var ifSearch = Regex.Match(s, @"(?<!\\)#(IF\s*\(([^\)]*)\)|ELSEIF\s*\(([^\)]*)\)|ELSE|ENDIF)");
@@ -65,19 +76,19 @@ namespace Oxygen.Modules
                         // If it's true, detect for the next else/end and process between the current condition position and the else/end position
                         Match detectedElse = DetectIf("ELSEIFENDIF",toDetect);
 
-                        result += ProcessIf(toDetect.Substring(0, detectedElse.Index),JSEngine);
+                        result += ProcessIf(toDetect.Substring(0, detectedElse.Index), file, JSEngine);
 
                         if (detectedElse.Groups[1].Value.StartsWith("ENDIF"))
                         {
                             // If detectedElse is an end, process the string after the end
-                            result += ProcessIf(toDetect.Remove(0, detectedElse.Index + detectedElse.Length), JSEngine);
+                            result += ProcessIf(toDetect.Remove(0, detectedElse.Index + detectedElse.Length), file, JSEngine);
                         }
                         else
                         {
                             // If detectedElse is an else, detect the next end and process after it
                             Match detectedEnd = DetectIf("ENDIF", toDetect);
 
-                            result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), JSEngine);
+                            result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), file, JSEngine);
                         }
 
                     }
@@ -98,19 +109,19 @@ namespace Oxygen.Modules
                                     // If it's true, detect for the next else/end and process between the current condition position and the else/end position
                                     detectedElse = DetectIf("ELSEIFENDIF", toDetect);
 
-                                    result += ProcessIf(toDetect.Substring(0, detectedElse.Index), JSEngine);
+                                    result += ProcessIf(toDetect.Substring(0, detectedElse.Index), file, JSEngine);
 
                                     if (detectedElse.Groups[1].Value.StartsWith("ENDIF"))
                                     {
                                         // If detectedElse is an end, process the string after the end
-                                        result += ProcessIf(toDetect.Remove(0, detectedElse.Index + detectedElse.Length), JSEngine);
+                                        result += ProcessIf(toDetect.Remove(0, detectedElse.Index + detectedElse.Length), file, JSEngine);
                                     }
                                     else
                                     {
                                         // If detectedElse is an else, detect the next end and process after it
                                         Match detectedEnd = DetectIf("ENDIF", toDetect);
 
-                                        result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), JSEngine);
+                                        result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), file, JSEngine);
                                     }
                                     // Exit the while
                                     break;
@@ -121,9 +132,9 @@ namespace Oxygen.Modules
                                 // If it's an else, detect the next end and process between the else and the end
                                 Match detectedEnd = DetectIf("ENDIF", toDetect);
 
-                                result += ProcessIf(toDetect.Substring(detectedElse.Index+detectedElse.Length, detectedEnd.Index - detectedElse.Index-detectedElse.Length), JSEngine);
+                                result += ProcessIf(toDetect.Substring(detectedElse.Index+detectedElse.Length, detectedEnd.Index - detectedElse.Index-detectedElse.Length), file, JSEngine);
 
-                                result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), JSEngine);
+                                result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), file, JSEngine);
 
                                 // Exit the while
                                 break;
@@ -131,7 +142,7 @@ namespace Oxygen.Modules
                             else if (detectedElse.Groups[1].Value.StartsWith("ENDIF"))
                             {
                                 // If it's an end, process after the end and exit the while
-                                result += ProcessIf(toDetect.Remove(0, detectedElse.Index + detectedElse.Length), JSEngine);
+                                result += ProcessIf(toDetect.Remove(0, detectedElse.Index + detectedElse.Length), file, JSEngine);
                                 break;
                             }
                         }
@@ -154,6 +165,12 @@ namespace Oxygen.Modules
             else
             {
 
+                return s;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorManager.Error(ex.Message, file);
                 return s;
             }
         }

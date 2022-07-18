@@ -284,7 +284,7 @@ namespace Oxygen.Modules
                         JSEngine.Execute(File.ReadAllText(Path.Combine(rootWorkingPath, "skin/oxygen/oxygen.js")));
                     }
                     catch (Exception ex) {
-                        Console.WriteLine(ex.ToString());
+                        ErrorManager.Error(ex.Message, "oxygen/oxygen.js", string.Join(":", ex.InnerException.StackTrace.Split(':')[^2..^0]));
                     }
                 }
 
@@ -294,17 +294,38 @@ namespace Oxygen.Modules
                     {
                         if (var.Value.GetType() == typeof(string[]))
                         {
-                            JSEngine.Execute($"{var.Key}=[\"{string.Join("\",\"",(string[])var.Value)}\"]");
+                            try
+                            {
+                                JSEngine.Execute($"{var.Key}=[\"{string.Join("\",\"", (string[])var.Value)}\"]");
+                            }
+                            catch
+                            {
+                                ErrorManager.Error($"Variable \"{var.Key}\" not already declared.", "");
+                            }
                         }
                         else if (var.Value.GetType() == typeof(Color))
                         {
-                            Color colorVar = (Color)var.Value;
+                            try
+                            {
+                                Color colorVar = (Color)var.Value;
                             JSEngine.Execute($"{var.Key}=Color.FromArgb({colorVar.A},{colorVar.R},{colorVar.G},{colorVar.B})");
                         }
+                            catch
+                            {
+                                ErrorManager.Error($"Variable \"{var.Key}\" not already declared.", "");
+                            }
+                    }
                         else
                         {
-                            JSEngine.Execute($"{var.Key}=\"{var.Value}\"");
-                        }
+                            try
+                            {
+                                JSEngine.Execute($"{var.Key}=\"{var.Value}\"");
+                    }
+                            catch
+                            {
+                                ErrorManager.Error($"Variable \"{var.Key}\" not already declared.", "");
+                            }
+                }
                     }
                 }
 
@@ -325,7 +346,9 @@ namespace Oxygen.Modules
 
                       Document = new Data.JS.Document(settingsDocument.Root, JSEngine);
                     }
-                    catch { }
+                    catch (Exception ex) {
+                        ErrorManager.Error(ex.Message,"settings.xml");
+                    }
                 }
 
                 Task.Factory.StartNew(() => {

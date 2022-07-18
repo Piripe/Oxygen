@@ -15,6 +15,7 @@ namespace Oxygen
         internal static Engine JSEngine;
         internal static Data.JS.Document Document;
         internal static Forms.Editor Editor;
+        internal static Forms.ErrorConsole ErrorConsole = new Forms.ErrorConsole();
 
         internal static bool DevMode = false;
         internal static bool AutoReload = false;

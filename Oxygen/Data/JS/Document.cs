@@ -36,14 +36,28 @@ namespace Oxygen.Data.JS
                         newCategory.InitCategory(childElement, JSEngine);
                         break;
                     case "script":
-                        XAttribute srcFile = childElement.Attributes().ToList().Find((x) => x.Name == "src");
+                        XAttribute? srcFile = childElement.Attributes().ToList().Find((x) => x.Name == "src");
                         if (srcFile == null)
                         {
-                            JSEngine.Execute(childElement.Value);
+                            try
+                            {
+                                JSEngine.Execute(childElement.Value);
+                            }
+                            catch (Exception ex)
+                            {
+                                ErrorManager.Error(ex.Message, "settings.xml");
+                            }
                         }
                         else
                         {
-                            JSEngine.Execute(File.ReadAllText(Path.Combine(Path.GetTempPath(), "Oxygen", "skin", srcFile.Value)));
+                            try
+                            {
+                                JSEngine.Execute(File.ReadAllText(Path.Combine(Path.GetTempPath(), "Oxygen", "skin", srcFile.Value)));
+                            }
+                            catch (Exception ex)
+                            {
+                                ErrorManager.Error(ex.Message, srcFile.Value, string.Join(":", ex.InnerException.StackTrace.Split(':')[^2..^0]));
+                            }
                         }
                         break;
                 }
@@ -87,7 +101,7 @@ namespace Oxygen.Data.JS
             return getElementByIdIn(children);
 
         }
-        public int AddControl(System.Windows.Forms.Panel panel, int y)
+        public int AddControl(Panel panel, int y)
         {
             return 0;
         }

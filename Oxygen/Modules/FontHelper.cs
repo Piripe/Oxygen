@@ -45,7 +45,7 @@ namespace Oxygen.Modules
         /// <returns></returns>
         internal static Font getFont(int weight, int size, bool italic, bool underline, bool strikeout)
         {
-            return new Font(getFontName(weight), size, (weight >= 700 ? FontStyle.Bold : 0) | (italic ? FontStyle.Italic : 0) | (underline ? FontStyle.Underline : 0) | (strikeout ? FontStyle.Strikeout : 0));
+            return new Font(getFontName(weight), size, (weight >= 700 ? FontStyle.Bold : 0) | (italic ? FontStyle.Italic : 0) | (underline ? FontStyle.Underline : 0) | (strikeout ? FontStyle.Strikeout : 0), GraphicsUnit.Pixel);
         }
     }
 }

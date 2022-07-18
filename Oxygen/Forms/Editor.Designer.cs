@@ -50,6 +50,8 @@
             this.settingsPanel = new System.Windows.Forms.Panel();
             this.linkPreviewLabel = new System.Windows.Forms.Label();
             this.devTimer = new System.Windows.Forms.Timer(this.components);
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.openErrorConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -135,6 +137,8 @@
             // devModeToolStripMenuItem
             // 
             this.devModeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openErrorConsoleToolStripMenuItem,
+            this.toolStripSeparator4,
             this.selectFolderToolStripMenuItem,
             this.toolStripSeparator3,
             this.turnOnAutoReloadToolStripMenuItem,
@@ -147,20 +151,20 @@
             // selectFolderToolStripMenuItem
             // 
             this.selectFolderToolStripMenuItem.Name = "selectFolderToolStripMenuItem";
-            this.selectFolderToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.selectFolderToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.selectFolderToolStripMenuItem.Text = "Select Folder...";
             this.selectFolderToolStripMenuItem.Click += new System.EventHandler(this.selectFolderToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(147, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(177, 6);
             // 
             // turnOnAutoReloadToolStripMenuItem
             // 
             this.turnOnAutoReloadToolStripMenuItem.CheckOnClick = true;
             this.turnOnAutoReloadToolStripMenuItem.Name = "turnOnAutoReloadToolStripMenuItem";
-            this.turnOnAutoReloadToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.turnOnAutoReloadToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.turnOnAutoReloadToolStripMenuItem.Text = "Auto reload";
             this.turnOnAutoReloadToolStripMenuItem.Click += new System.EventHandler(this.turnOnAutoReloadToolStripMenuItem_Click);
             // 
@@ -168,7 +172,7 @@
             // 
             this.autoExportToolStripMenuItem.CheckOnClick = true;
             this.autoExportToolStripMenuItem.Name = "autoExportToolStripMenuItem";
-            this.autoExportToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.autoExportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.autoExportToolStripMenuItem.Text = "Auto export";
             this.autoExportToolStripMenuItem.Click += new System.EventHandler(this.autoExportToolStripMenuItem_Click);
             // 
@@ -207,7 +211,7 @@
             this.settingsPanel.AutoScrollMinSize = new System.Drawing.Size(-100, 0);
             this.settingsPanel.BackColor = System.Drawing.SystemColors.Control;
             this.settingsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.settingsPanel.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.settingsPanel.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.settingsPanel.Location = new System.Drawing.Point(175, 25);
             this.settingsPanel.Name = "settingsPanel";
             this.settingsPanel.Size = new System.Drawing.Size(609, 435);
@@ -221,7 +225,7 @@
             this.linkPreviewLabel.BackColor = System.Drawing.Color.White;
             this.linkPreviewLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.linkPreviewLabel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.linkPreviewLabel.Font = new System.Drawing.Font("Segoe UI Variable Display", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.linkPreviewLabel.Font = new System.Drawing.Font("Segoe UI Variable Display", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.linkPreviewLabel.Location = new System.Drawing.Point(0, 441);
             this.linkPreviewLabel.MaximumSize = new System.Drawing.Size(100, 21);
             this.linkPreviewLabel.Name = "linkPreviewLabel";
@@ -235,6 +239,18 @@
             this.devTimer.Interval = 2000;
             this.devTimer.Tick += new System.EventHandler(this.devTimer_Tick);
             // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(177, 6);
+            // 
+            // openErrorConsoleToolStripMenuItem
+            // 
+            this.openErrorConsoleToolStripMenuItem.Name = "openErrorConsoleToolStripMenuItem";
+            this.openErrorConsoleToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openErrorConsoleToolStripMenuItem.Text = "Open Error Console";
+            this.openErrorConsoleToolStripMenuItem.Click += new System.EventHandler(this.openErrorConsoleToolStripMenuItem_Click);
+            // 
             // Editor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
@@ -245,7 +261,7 @@
             this.Controls.Add(this.settingsPanel);
             this.Controls.Add(this.categoriesListBox);
             this.Controls.Add(this.menuStrip1);
-            this.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
@@ -285,5 +301,7 @@
         private System.Windows.Forms.Timer devTimer;
         private System.Windows.Forms.ToolStripMenuItem selectFolderToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private ToolStripMenuItem openErrorConsoleToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator4;
     }
 }

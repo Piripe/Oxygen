@@ -416,5 +416,10 @@ namespace Oxygen.Forms
                 }
             }
         }
+
+        private void openErrorConsoleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Global.ErrorConsole.Show();
+        }
     }
 }
