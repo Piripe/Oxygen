@@ -50,10 +50,11 @@
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(395, 345);
+            this.button1.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.button1.Location = new System.Drawing.Point(339, 392);
+            this.button1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(91, 32);
+            this.button1.Size = new System.Drawing.Size(96, 32);
             this.button1.TabIndex = 0;
             this.button1.Text = "Close";
             this.button1.UseVisualStyleBackColor = true;
@@ -64,9 +65,10 @@
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.Image = global::Oxygen.Properties.Resources.icon_x64;
-            this.pictureBox1.Location = new System.Drawing.Point(12, 12);
+            this.pictureBox1.Location = new System.Drawing.Point(14, 14);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(474, 64);
+            this.pictureBox1.Size = new System.Drawing.Size(421, 74);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox1.TabIndex = 3;
             this.pictureBox1.TabStop = false;
@@ -75,10 +77,11 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.Font = new System.Drawing.Font("Segoe UI Variable Display Semib", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(12, 79);
+            this.label1.Font = new System.Drawing.Font("Segoe UI Variable Display Semib", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.label1.Location = new System.Drawing.Point(14, 91);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(474, 31);
+            this.label1.Size = new System.Drawing.Size(421, 36);
             this.label1.TabIndex = 4;
             this.label1.Text = "Oxygen";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -87,22 +90,26 @@
             // 
             this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label2.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(10)))), ((int)(((byte)(10)))));
-            this.label2.Location = new System.Drawing.Point(12, 114);
+            this.label2.Location = new System.Drawing.Point(14, 132);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(474, 21);
+            this.label2.Size = new System.Drawing.Size(421, 24);
             this.label2.TabIndex = 5;
             this.label2.Text = "The ultimate customization software for Steam ";
             this.label2.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // versionLabel
             // 
-            this.versionLabel.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.versionLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.versionLabel.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.versionLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(10)))), ((int)(((byte)(10)))));
-            this.versionLabel.Location = new System.Drawing.Point(12, 180);
+            this.versionLabel.Location = new System.Drawing.Point(14, 198);
+            this.versionLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.versionLabel.Name = "versionLabel";
-            this.versionLabel.Size = new System.Drawing.Size(474, 21);
+            this.versionLabel.Size = new System.Drawing.Size(421, 24);
             this.versionLabel.TabIndex = 6;
             this.versionLabel.Text = "Version";
             this.versionLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -110,9 +117,10 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(10)))), ((int)(((byte)(10)))));
-            this.label4.Location = new System.Drawing.Point(39, 314);
+            this.label4.Location = new System.Drawing.Point(16, 327);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(105, 21);
             this.label4.TabIndex = 7;
@@ -122,8 +130,9 @@
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.linkLabel1.Location = new System.Drawing.Point(139, 314);
+            this.linkLabel1.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.linkLabel1.Location = new System.Drawing.Point(116, 327);
+            this.linkLabel1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(210, 21);
             this.linkLabel1.TabIndex = 8;
@@ -135,9 +144,10 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(10)))), ((int)(((byte)(10)))));
-            this.label5.Location = new System.Drawing.Point(344, 314);
+            this.label5.Location = new System.Drawing.Point(317, 327);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(115, 21);
             this.label5.TabIndex = 9;
@@ -147,7 +157,8 @@
             // socialBox3
             // 
             this.socialBox3.Image = global::Oxygen.Properties.Resources.github;
-            this.socialBox3.Location = new System.Drawing.Point(256, 246);
+            this.socialBox3.Location = new System.Drawing.Point(232, 249);
+            this.socialBox3.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.socialBox3.Name = "socialBox3";
             this.socialBox3.Size = new System.Drawing.Size(48, 48);
             this.socialBox3.TabIndex = 10;
@@ -158,7 +169,8 @@
             // socialBox2
             // 
             this.socialBox2.Image = global::Oxygen.Properties.Resources.discord;
-            this.socialBox2.Location = new System.Drawing.Point(194, 246);
+            this.socialBox2.Location = new System.Drawing.Point(168, 249);
+            this.socialBox2.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.socialBox2.Name = "socialBox2";
             this.socialBox2.Size = new System.Drawing.Size(48, 48);
             this.socialBox2.TabIndex = 11;
@@ -169,7 +181,8 @@
             // socialBox4
             // 
             this.socialBox4.Image = global::Oxygen.Properties.Resources.youtube;
-            this.socialBox4.Location = new System.Drawing.Point(318, 246);
+            this.socialBox4.Location = new System.Drawing.Point(296, 249);
+            this.socialBox4.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.socialBox4.Name = "socialBox4";
             this.socialBox4.Size = new System.Drawing.Size(48, 48);
             this.socialBox4.TabIndex = 12;
@@ -180,7 +193,8 @@
             // socialBox1
             // 
             this.socialBox1.Image = global::Oxygen.Properties.Resources.twitter;
-            this.socialBox1.Location = new System.Drawing.Point(132, 246);
+            this.socialBox1.Location = new System.Drawing.Point(104, 249);
+            this.socialBox1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.socialBox1.Name = "socialBox1";
             this.socialBox1.Size = new System.Drawing.Size(48, 48);
             this.socialBox1.TabIndex = 13;
@@ -190,9 +204,9 @@
             // 
             // About
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(498, 389);
+            this.ClientSize = new System.Drawing.Size(449, 437);
             this.Controls.Add(this.socialBox1);
             this.Controls.Add(this.socialBox4);
             this.Controls.Add(this.socialBox2);
@@ -207,10 +221,11 @@
             this.Controls.Add(this.label5);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "About";
-            this.Padding = new System.Windows.Forms.Padding(9);
+            this.Padding = new System.Windows.Forms.Padding(10);
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "About Oxygen";
