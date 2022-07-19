@@ -15,7 +15,7 @@ namespace Oxygen.Data.JS.Elements
         public List<IElement> children { get; }
         public Dictionary<string, string> attributes { get; }
         public string id { get => attributes.GetOrDefault("id", ""); set => attributes.SetOrAdd("id", value); }
-        public string innerText
+        public string? innerText
         {
             get
             {
@@ -78,7 +78,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-top", 0); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
                 attributes.SetOrAdd("margin-top", value.ToString());
             }
         }
@@ -86,7 +87,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-bottom", 6); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
                 attributes.SetOrAdd("margin-bottom", value.ToString());
             }
         }
@@ -97,12 +99,14 @@ namespace Oxygen.Data.JS.Elements
                 if (value)
                 {
                     int oldTop = control.Top;
-                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top - marginTop, marginTop + control.Height + marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top - marginTop, marginTop + control.Height + marginBottom);
                     control.Top = oldTop;
                 }
                 else
                 {
-                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, -marginTop - control.Height - marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, -marginTop - control.Height - marginBottom);
                 }
                 control.Visible = value;
                 attributes.SetOrAdd("visible", value.ToString());
@@ -118,7 +122,7 @@ namespace Oxygen.Data.JS.Elements
         }
 
         private LinkLabel control;
-        private Panel parentPanel;
+        private Panel? parentPanel;
         private int oldHeight;
 
         internal Link(XElement element)
@@ -144,38 +148,46 @@ namespace Oxygen.Data.JS.Elements
             ControlHelper.AddGenericEvents(control, attributes, this);
 
 
-            control.Resize += (object sender, EventArgs e) =>
+            control.Resize += (object? sender, EventArgs e) =>
             {
                 if (oldHeight != control.Height)
                 {
-                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + oldHeight, control.Height - oldHeight);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top + oldHeight, control.Height - oldHeight);
 
                     oldHeight = control.Height;
                 }
             };
-            control.Click += (object sender, EventArgs e) =>
+            control.Click += (object? sender, EventArgs e) =>
             {
-                if (Uri.IsWellFormedUriString(href, UriKind.Absolute) & (href.StartsWith("http://") | href.StartsWith("https://"))) System.Diagnostics.Process.Start(href);
+                if (Uri.IsWellFormedUriString(href, UriKind.Absolute) & (href.StartsWith("http://") | href.StartsWith("https://"))) System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(href) { UseShellExecute = true});
             };
-            control.MouseEnter += (object sender, EventArgs e) =>
+            control.MouseEnter += (object? sender, EventArgs e) =>
             {
-                Global.Editor.linkPreviewLabel.MaximumSize = new Size(Global.Editor.Width / 2-20, 21);
-                Global.Editor.linkPreviewLabel.Text = href;
-                Global.Editor.linkPreviewLabel.Visible = true;
-            };
-            control.MouseMove += (object sender, MouseEventArgs e) =>
-            {
-                if (new Rectangle(0, Global.Editor.Height - 60, Global.Editor.linkPreviewLabel.Width, 21).Contains(Global.Editor.PointToClient(Cursor.Position)))
+                if (Global.Editor != null)
                 {
-                    Global.Editor.linkPreviewLabel.Location = new Point(Global.Editor.Width - Global.Editor.linkPreviewLabel.Width-16, Global.Editor.Height - 60);
-                }
-                else
-                {
-                    Global.Editor.linkPreviewLabel.Location = new Point(0, Global.Editor.Height - 60);
+                    Global.Editor.linkPreviewLabel.MaximumSize = new Size(Global.Editor.Width / 2 - 20, 21);
+                    Global.Editor.linkPreviewLabel.Text = href;
+                    Global.Editor.linkPreviewLabel.Visible = true;
                 }
             };
-            control.MouseLeave += (object sender, EventArgs e) =>
+            control.MouseMove += (object? sender, MouseEventArgs e) =>
             {
+                if (Global.Editor != null)
+                {
+                    if (new Rectangle(0, Global.Editor.Height - 60, Global.Editor.linkPreviewLabel.Width, 21).Contains(Global.Editor.PointToClient(Cursor.Position)))
+                    {
+                        Global.Editor.linkPreviewLabel.Location = new Point(Global.Editor.Width - Global.Editor.linkPreviewLabel.Width - 16, Global.Editor.Height - 57);
+                    }
+                    else
+                    {
+                        Global.Editor.linkPreviewLabel.Location = new Point(0, Global.Editor.Height - 57);
+                    }
+                }
+            };
+            control.MouseLeave += (object? sender, EventArgs e) =>
+            {
+                if (Global.Editor != null)
                 Global.Editor.linkPreviewLabel.Visible = false;
             };
 
@@ -188,7 +200,7 @@ namespace Oxygen.Data.JS.Elements
 
             panel.Controls.Add(control);
 
-            panel.Resize += (object sender, EventArgs e) =>
+            panel.Resize += (object? sender, EventArgs e) =>
             {
                 control.MaximumSize = new Size(panel.Width - 48, 1000);
             };

@@ -59,7 +59,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-top", 0); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
                 attributes.SetOrAdd("margin-top", value.ToString());
             }
         }
@@ -67,7 +68,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-bottom", 6); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top+1, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top+1, value - marginTop);
                 attributes.SetOrAdd("margin-bottom", value.ToString());
             }
         }
@@ -78,18 +80,20 @@ namespace Oxygen.Data.JS.Elements
                 if (value)
                 {
                     int oldTop = control.Top;
-                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top - marginTop, marginTop + control.Height + marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top - marginTop, marginTop + control.Height + marginBottom);
                     control.Top = oldTop;
                 }
                 else
                 {
-                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, -marginTop - control.Height - marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, -marginTop - control.Height - marginBottom);
                 }
                 control.Visible = value;
                 attributes.SetOrAdd("visible", value.ToString());
             }
         }
-        public string innerText { get
+        public string? innerText { get
             {
                 return control.Text;
             } set
@@ -99,7 +103,7 @@ namespace Oxygen.Data.JS.Elements
         }
 
         private System.Windows.Forms.Label control;
-        private Panel parentPanel;
+        private Panel? parentPanel;
         private int oldHeight;
 
         internal Label(XElement element)
@@ -122,11 +126,12 @@ namespace Oxygen.Data.JS.Elements
             ControlHelper.AddGenericEvents(control, attributes, this);
 
 
-            control.Resize += (object sender, EventArgs e) =>
+            control.Resize += (object? sender, EventArgs e) =>
             {
                 if (oldHeight != control.Height)
                 {
-                    ControlHelper.ShiftControlsUnder(parentPanel,control.Top + oldHeight, control.Height - oldHeight);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top + oldHeight, control.Height - oldHeight);
 
                     oldHeight = control.Height;
                 }
@@ -143,7 +148,7 @@ namespace Oxygen.Data.JS.Elements
 
             oldHeight = control.Height;
 
-            panel.Resize += (object sender, EventArgs e) =>
+            panel.Resize += (object? sender, EventArgs e) =>
             {
                 control.MaximumSize = new Size(panel.Width - 48, 1000);
             };

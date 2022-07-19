@@ -15,7 +15,7 @@ namespace Oxygen.Data.JS.Elements
         public List<IElement> children { get; }
         public Dictionary<string, string> attributes { get; }
         public string id { get => attributes.GetOrDefault("id",""); set => attributes.SetOrAdd("id",value); }
-        public string innerText { get
+        public string? innerText { get
             {
                 return control.Text;
             } set
@@ -35,7 +35,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-top", 0); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
                 attributes.SetOrAdd("margin-top", value.ToString());
             }
         }
@@ -43,7 +44,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-bottom", 6); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
                 attributes.SetOrAdd("margin-bottom", value.ToString());
             }
         }
@@ -54,12 +56,14 @@ namespace Oxygen.Data.JS.Elements
                 if (value)
                 {
                     int oldTop = control.Top;
-                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top - marginTop, marginTop + control.Height + marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top - marginTop, marginTop + control.Height + marginBottom);
                     control.Top = oldTop;
                 }
                 else
                 {
-                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, -marginTop - control.Height - marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, -marginTop - control.Height - marginBottom);
                 }
                 control.Visible = value;
                 attributes.SetOrAdd("visible", value.ToString());
@@ -75,7 +79,7 @@ namespace Oxygen.Data.JS.Elements
         }
 
         private CheckBox control;
-        private Panel parentPanel;
+        private Panel? parentPanel;
 
         internal Checkbox(XElement element)
         {
@@ -97,7 +101,7 @@ namespace Oxygen.Data.JS.Elements
 
             ControlHelper.AddGenericEvents(control, attributes, this);
 
-            control.CheckedChanged += (object sender, EventArgs e) =>
+            control.CheckedChanged += (object? sender, EventArgs e) =>
             {
                 value = control.Checked;
                 if (attributes.ContainsKey("onchange"))

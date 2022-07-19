@@ -11,9 +11,9 @@ namespace Oxygen.Data.JS
         List<IElement> children { get; }
         Dictionary<string,string> attributes { get; }
         string id { get; set; }
-        string innerText { get; set; }
+        string? innerText { get; set; }
 
-        int AddControl(System.Windows.Forms.Panel panel, int y);
+        int AddControl(Panel panel, int y);
 
     }
 }

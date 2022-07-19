@@ -99,20 +99,24 @@ namespace Oxygen
             }
         }
 
-        private List<Data.SkinData> internetSkins;
+        private List<Data.SkinData>? internetSkins;
         private async void fetchInternetSkins()
         {
             if (internetSkins == null)
             {
                 internetSkins = new List<Data.SkinData>();
-                XDocument doc = XDocument.Parse(await new System.Net.WebClient().DownloadStringTaskAsync("https://github.com/Piripe/Oxygen/raw/main/public-skins.xml"));
+                XDocument doc = XDocument.Parse(await new HttpClient().GetStringAsync("https://github.com/Piripe/Oxygen/raw/main/public-skins.xml"));
 
                 internetSelectListBox.Items.Clear();
 
-                foreach (XElement skin in doc.Root.Elements())
+                if (doc.Root != null)
                 {
-                    internetSkins.Add(new Data.SkinData() { Title = skin.Attribute("title").Value, DownloadLink = skin.Element("download").Value, InfosLink = skin.Element("infos").Value });
-                    internetSelectListBox.Items.Add(internetSkins.Last().Title);
+
+                    foreach (XElement skin in doc.Root.Elements())
+                    {
+                        internetSkins.Add(new Data.SkinData() { Title = (skin.Attribute("title") ?? new XAttribute("", "")).Value, DownloadLink = (skin.Element("download") ?? new XElement("","")).Value, InfosLink = (skin.Element("infos")??new XElement("","")).Value }); ;
+                        internetSelectListBox.Items.Add(internetSkins.Last().Title);
+                    }
                 }
             }
 
@@ -120,36 +124,45 @@ namespace Oxygen
         }
         private async void fetchSelectedInternetSkin(int index)
         {
-            XDocument doc = XDocument.Parse(await new System.Net.WebClient().DownloadStringTaskAsync(internetSkins[index].InfosLink));
+            if (internetSkins != null)
+            {
+                XDocument doc = XDocument.Parse(await new HttpClient().GetStringAsync(internetSkins[index].InfosLink));
 
-            internetSkins[index].Title = doc.Root.Element("title").Value;
-            internetSelectListBox.Items[index] = internetSkins[index].Title;
+                if (doc.Root != null)
+                {
+                    internetSkins[index].Title = (doc.Root.Element("title") ?? new XElement("", "")).Value;
+                    internetSelectListBox.Items[index] = internetSkins[index].Title;
 
-            internetSkins[index].Description = doc.Root.Element("description").Value;
+                    internetSkins[index].Description = (doc.Root.Element("description") ?? new XElement("", "")).Value;
 
-            internetSkins[index].Thumbnail = doc.Root.Element("thumbnail").Value;
-            internetSkinPreviewPictureBox.ImageLocation = internetSkins[index].Thumbnail;
+                    internetSkins[index].Thumbnail = (doc.Root.Element("thumbnail") ?? new XElement("", "")).Value;
+                    internetSkinPreviewPictureBox.ImageLocation = internetSkins[index].Thumbnail;
+                }
+            }
         }
 
         private void internetSelectListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (internetSkins[internetSelectListBox.SelectedIndex].Thumbnail == "")
+            if (internetSkins != null)
             {
-                fetchSelectedInternetSkin(internetSelectListBox.SelectedIndex);
-            }
-            else
-            {
-                internetSkinPreviewPictureBox.ImageLocation = internetSkins[internetSelectListBox.SelectedIndex].Thumbnail;
-            }
-            if (internetSelectListBox.SelectedIndex == -1)
-            {
-                nextButton.Enabled = false;
-            }
-            else
-            {
-                nextButton.Enabled = true;
-                Global.SkinConfig.SkinOrigin = Data.SkinOrigin.Internet;
-                Global.SkinConfig.skinPath = internetSkins[internetSelectListBox.SelectedIndex].DownloadLink;
+                if (internetSkins[internetSelectListBox.SelectedIndex].Thumbnail == "")
+                {
+                    fetchSelectedInternetSkin(internetSelectListBox.SelectedIndex);
+                }
+                else
+                {
+                    internetSkinPreviewPictureBox.ImageLocation = internetSkins[internetSelectListBox.SelectedIndex].Thumbnail;
+                }
+                if (internetSelectListBox.SelectedIndex == -1)
+                {
+                    nextButton.Enabled = false;
+                }
+                else
+                {
+                    nextButton.Enabled = true;
+                    Global.SkinConfig.SkinOrigin = Data.SkinOrigin.Internet;
+                    Global.SkinConfig.skinPath = internetSkins[internetSelectListBox.SelectedIndex].DownloadLink;
+                }
             }
         }
 
@@ -157,9 +170,9 @@ namespace Oxygen
         {
             Forms.ProgressBar progressDialog = new Forms.ProgressBar((Forms.ProgressBar progress) =>
             {
-                if (Global.SkinConfig.skinPath.EndsWith(".oxygen.xml"))
+                if ((Global.SkinConfig.skinPath??"").EndsWith(".oxygen.xml"))
                 {
-                    Modules.ProjectManager.Load(progress, Global.SkinConfig.skinPath);
+                    Modules.ProjectManager.Load(progress, Global.SkinConfig.skinPath??"");
                 }
                 else
                 {

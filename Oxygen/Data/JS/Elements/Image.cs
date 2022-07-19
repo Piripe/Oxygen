@@ -16,7 +16,7 @@ namespace Oxygen.Data.JS.Elements
         public List<IElement> children { get; }
         public Dictionary<string, string> attributes { get; }
         public string id { get => attributes.GetOrDefault("id",""); set => attributes.SetOrAdd("id",value); }
-        public string innerText { get
+        public string? innerText { get
             {
                 return control.Text;
             } set
@@ -36,7 +36,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-top", 0); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
                 attributes.SetOrAdd("margin-top", value.ToString());
             }
         }
@@ -44,7 +45,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-bottom", 6); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
                 attributes.SetOrAdd("margin-bottom", value.ToString());
             }
         }
@@ -55,12 +57,14 @@ namespace Oxygen.Data.JS.Elements
                 if (value)
                 {
                     int oldTop = control.Top;
-                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top - marginTop, marginTop + control.Height + marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top - marginTop, marginTop + control.Height + marginBottom);
                     control.Top = oldTop;
                 }
                 else
                 {
-                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, -marginTop - control.Height - marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, -marginTop - control.Height - marginBottom);
                 }
                 control.Visible = value;
                 attributes.SetOrAdd("visible", value.ToString());
@@ -68,7 +72,7 @@ namespace Oxygen.Data.JS.Elements
         }
 
         private PictureBox control;
-        private Panel parentPanel;
+        private Panel? parentPanel;
         private int oldHeight;
 
         internal Image(XElement element)
@@ -90,20 +94,23 @@ namespace Oxygen.Data.JS.Elements
             oldHeight = control.Height;
 
             ControlHelper.AddGenericEvents(control, attributes, this);
-            control.Invalidated += (object sender, InvalidateEventArgs e) =>
+            control.Invalidated += (object? sender, InvalidateEventArgs e) =>
             {
                 if (oldHeight != control.Height)
                 {
-                    foreach (Control control in parentPanel.Controls)
+                    if (parentPanel != null)
                     {
-                        if (control.Location.Y > this.control.Location.Y)
+                        foreach (Control control in parentPanel.Controls)
                         {
-                            control.Location = new Point(control.Left, control.Top + (this.control.Height - oldHeight));
+                            if (control.Location.Y > this.control.Location.Y)
+                            {
+                                control.Location = new Point(control.Left, control.Top + (this.control.Height - oldHeight));
+                            }
                         }
-                    }
-                    control.Location = new Point((parentPanel.Width - control.Width) / 2, control.Top);
+                        control.Location = new Point((parentPanel.Width - control.Width) / 2, control.Top);
 
-                    oldHeight = control.Height;
+                        oldHeight = control.Height;
+                    }
                 }
             };
 
@@ -112,7 +119,7 @@ namespace Oxygen.Data.JS.Elements
         public int AddControl(Panel panel,int y)
         {
             control.Location = new Point((panel.Width - control.Width) / 2, y+marginTop);
-            panel.Resize += (object sender, EventArgs e) => {
+            panel.Resize += (object? sender, EventArgs e) => {
                 control.Location = new Point((panel.Width - control.Width) / 2, y+marginTop - panel.VerticalScroll.Value);
             };
 

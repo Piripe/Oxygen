@@ -23,9 +23,12 @@ namespace Oxygen.Modules
         /// <param name="destination"></param>
         internal static void ExportSkin(Forms.ProgressBar progress, string destination)
         {
-            TaskScheduler context = TaskScheduler.FromCurrentSynchronizationContext();
+            if (Global.JSEngine != null)
+            {
+                TaskScheduler context = TaskScheduler.FromCurrentSynchronizationContext();
 
-            Task.Run(() => { ExportThread(progress, destination,Global.JSEngine, context); });
+                Task.Run(() => { ExportThread(progress, destination, Global.JSEngine, context); });
+            }
         }
         /// <summary>
         /// Export the skin (Warning: The code is very bad)
@@ -39,7 +42,7 @@ namespace Oxygen.Modules
             string rootWorkingPath = Path.Combine(Path.GetTempPath(), "Oxygen");
 
             // Delete the temp export Directory if it already exists
-            if (Directory.Exists(Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", Global.SkinData.Title.Split(Path.GetInvalidFileNameChars()))))) { Directory.Delete(Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", Global.SkinData.Title.Split(Path.GetInvalidFileNameChars()))), true); }
+            if (Directory.Exists(Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", (Global.SkinData??new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars()))))) { Directory.Delete(Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", (Global.SkinData??new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars()))), true); }
 
             Task.Factory.StartNew(() => {
                 progress.workingLabel.Text = "Loading TGA Files List...";
@@ -85,9 +88,9 @@ namespace Oxygen.Modules
             for (int i = 0; i < vguiFiles.Length; i++)
             {
                 string vguiFile = vguiFiles[i];
-                string destinationFile = vguiFile.Replace(Path.Combine(rootWorkingPath, "skin"), Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", Global.SkinData.Title.Split(Path.GetInvalidFileNameChars()))));
+                string destinationFile = vguiFile.Replace(Path.Combine(rootWorkingPath, "skin"), Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", (Global.SkinData??new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars()))));
 
-                Directory.CreateDirectory(Path.GetDirectoryName(destinationFile));
+                Directory.CreateDirectory(Path.GetDirectoryName(destinationFile)??"");
                 File.WriteAllText(destinationFile, Preprocessor.PreProcess(File.ReadAllText(vguiFile), vguiFile.Replace(Path.Combine(rootWorkingPath, "skin"),"").Remove(0,1), JSEngine));
             }
 
@@ -99,8 +102,8 @@ namespace Oxygen.Modules
             progress.drawCLIProgressbar("Copying skin...", 90);
 
             // Set paths for copy
-            string copySrc = Path.Combine(rootWorkingPath, "export", string.Join("_", Global.SkinData.Title.Split(Path.GetInvalidFileNameChars())));
-            string copyDest = Path.Combine(destination, string.Join("_", (Global.SkinConfig.skinSave == null ? Global.SkinData.Title : Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(Global.SkinConfig.skinSave))).Split(Path.GetInvalidFileNameChars())));
+            string copySrc = Path.Combine(rootWorkingPath, "export", string.Join("_", (Global.SkinData??new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars())));
+            string copyDest = Path.Combine(destination, string.Join("_", (Global.SkinConfig.skinSave == null ? (Global.SkinData??new Data.SkinData()).Title : Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(Global.SkinConfig.skinSave))).Split(Path.GetInvalidFileNameChars())));
 
             // Delete the export destination if it already exists
             try
@@ -136,7 +139,7 @@ namespace Oxygen.Modules
             // Create a save file in the export to restore the current configuration later
             if (Global.SkinConfig.skinSave == null)
             {
-                ProjectManager.Save(Path.Combine(copyDest, string.Join("_", Global.SkinData.Title.Split(Path.GetInvalidFileNameChars())) + ".oxygen.xml"));
+                ProjectManager.Save(Path.Combine(copyDest, string.Join("_", (Global.SkinData??new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars())) + ".oxygen.xml"));
             }
             else
             {
@@ -193,11 +196,11 @@ namespace Oxygen.Modules
         private static void GenTGAXML(string rootWorkingPath, string tgaFile, Jint.Engine JSEngine)
         {
 
-            string destinationFile = Path.Combine(Path.GetDirectoryName(tgaFile), Path.GetFileNameWithoutExtension(tgaFile)).Replace(Path.Combine(rootWorkingPath, "skin"), Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", Global.SkinData.Title.Split(Path.GetInvalidFileNameChars()))));
+            string destinationFile = Path.Combine(Path.GetDirectoryName(tgaFile)??"", Path.GetFileNameWithoutExtension(tgaFile)).Replace(Path.Combine(rootWorkingPath, "skin"), Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", (Global.SkinData??new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars()))));
 
             XDocument tgaInfos = XDocument.Load(tgaFile);
-
-            GenTGAXMLFolder(rootWorkingPath, tgaFile, tgaInfos.Root, JSEngine);
+            if (tgaInfos.Root != null)
+                GenTGAXMLFolder(rootWorkingPath, tgaFile, tgaInfos.Root, JSEngine);
         }
         /// <summary>
         /// Generate a folder of images from an <c>&lt;images&gt;</c> or <c>&lt;folder&gt;</c>
@@ -213,9 +216,9 @@ namespace Oxygen.Modules
             switch (tgaInfos.Name.LocalName)
             {
                 case "image":
-                    XAttribute fileName = tgaInfos.Attributes().ToList().Find((x) => x.Name == "name");
-                    string destinationFile = Path.Combine(Path.GetDirectoryName(XMLFileLocation), relativeFolder, fileName == null ? Path.GetFileNameWithoutExtension(XMLFileLocation) : fileName.Value).Replace(Path.Combine(rootWorkingPath, "skin"), Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", Global.SkinData.Title.Split(Path.GetInvalidFileNameChars()))));
-                    XAttribute renderCondition = tgaInfos.Attributes().ToList().Find((x) => x.Name == "if");
+                    XAttribute? fileName = tgaInfos.Attributes().ToList().Find((x) => x.Name == "name");
+                    string destinationFile = Path.Combine(Path.GetDirectoryName(XMLFileLocation)??"", relativeFolder, fileName == null ? Path.GetFileNameWithoutExtension(XMLFileLocation) : fileName.Value).Replace(Path.Combine(rootWorkingPath, "skin"), Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", (Global.SkinData??new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars()))));
+                    XAttribute? renderCondition = tgaInfos.Attributes().ToList().Find((x) => x.Name == "if");
                     if (renderCondition != null)
                     {
                         if (bool.Parse(JSEngine.Evaluate(renderCondition.Value).ToString()) == true) RenderImage(rootWorkingPath, destinationFile, XMLFileLocation, tgaInfos, JSEngine);
@@ -246,7 +249,7 @@ namespace Oxygen.Modules
                 case "folder":
                     void RenderDir()
                     {
-                        XAttribute folderName = tgaInfos.Attributes().ToList().Find((x) => x.Name == "name");
+                        XAttribute? folderName = tgaInfos.Attributes().ToList().Find((x) => x.Name == "name");
                         foreach (XElement tgaInfo in tgaInfos.Elements())
                         {
                             GenTGAXMLFolder(rootWorkingPath, XMLFileLocation, tgaInfo, JSEngine, Path.Combine(relativeFolder, folderName == null ? Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(XMLFileLocation)) : folderName.Value));
@@ -275,17 +278,17 @@ namespace Oxygen.Modules
         private static void RenderImage(string rootWorkingPath, string destinationFile, string XMLFileLocation, XElement tgaInfos, Jint.Engine JSEngine)
         {
             string file = XMLFileLocation.Replace(Path.Combine(rootWorkingPath, "skin"), "").Remove(0, 1);
-            string destfile = destinationFile.Replace(Path.Combine(rootWorkingPath, "export", string.Join("_", Global.SkinData.Title.Split(Path.GetInvalidFileNameChars()))), "").Remove(0, 1);
+            string destfile = destinationFile.Replace(Path.Combine(rootWorkingPath, "export", string.Join("_", (Global.SkinData??new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars()))), "").Remove(0, 1);
             try
             {
-                if (int.TryParse(tgaInfos.Attribute("width").Value, out int imageWidth))
+                if (int.TryParse((tgaInfos.Attribute("width")??new XAttribute("","16")).Value, out int imageWidth))
                 {
                     if (imageWidth < 1)
                     {
                         ErrorManager.Error("\"width\" Attribute must be positive.", file, destfile);
                         return;
                     }
-                    if (int.TryParse(tgaInfos.Attribute("height").Value, out int imageHeight))
+                    if (int.TryParse((tgaInfos.Attribute("height") ?? new XAttribute("", "16")).Value, out int imageHeight))
                     {
                         if (imageHeight < 1)
                         {
@@ -300,7 +303,7 @@ namespace Oxygen.Modules
                         {
                             void RenderSrc()
                             {
-                                string sourcePath = tgaInfo.Value.StartsWith("~/") ? Path.Combine(rootWorkingPath, "skin", tgaInfo.Value.Remove(0, 2)) : Path.Combine(Path.GetDirectoryName(XMLFileLocation), Path.GetFileNameWithoutExtension(XMLFileLocation), tgaInfo.Value);
+                                string sourcePath = tgaInfo.Value.StartsWith("~/") ? Path.Combine(rootWorkingPath, "skin", tgaInfo.Value.Remove(0, 2)) : Path.Combine(Path.GetDirectoryName(XMLFileLocation)??"", Path.GetFileNameWithoutExtension(XMLFileLocation), tgaInfo.Value);
                                 if (!File.Exists(sourcePath))
                                 {
                                     ErrorManager.Error($"The image \"{sourcePath.Replace(Path.Combine(rootWorkingPath, "skin"), "").Remove(0, 1)}\" must exist.", file, destfile);
@@ -309,10 +312,10 @@ namespace Oxygen.Modules
                                 using (Image img = Bitmap.FromFile(sourcePath))
                                 {
                                     List<XAttribute> attrs = tgaInfo.Attributes().ToList();
-                                    XAttribute colorOrigin = attrs.Find((x) => x.Name == "color");
+                                    XAttribute? colorOrigin = attrs.Find((x) => x.Name == "color");
 
                                     // Set the offset
-                                    XAttribute offsetAttr = attrs.Find((x) => x.Name == "offset");
+                                    XAttribute? offsetAttr = attrs.Find((x) => x.Name == "offset");
                                     Point offset = new Point(0, 0);
                                     if (offsetAttr != null)
                                     {
@@ -441,7 +444,7 @@ namespace Oxygen.Modules
                             }
 
                             // Conditionnal rendering : Render the source only if the condition is true
-                            XAttribute renderCondition = tgaInfo.Attributes().ToList().Find((x) => x.Name == "if");
+                            XAttribute? renderCondition = tgaInfo.Attributes().ToList().Find((x) => x.Name == "if");
                             if (renderCondition != null)
                             {
                                 bool result = bool.Parse(JSEngine.Evaluate(renderCondition.Value).ToString());
@@ -457,7 +460,7 @@ namespace Oxygen.Modules
 
                         }
                         // Create the destination folder
-                        Directory.CreateDirectory(Path.GetDirectoryName(destinationFile));
+                        Directory.CreateDirectory(Path.GetDirectoryName(destinationFile)??"");
                         if (Path.GetExtension(destinationFile).ToLower() == ".tga")
                         {
                             // Export as TGA

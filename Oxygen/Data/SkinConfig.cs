@@ -9,8 +9,8 @@ namespace Oxygen.Data
     internal class SkinConfig
     {
         public SkinOrigin SkinOrigin { get; set; }
-        public string skinPath { get; set; }
-        public string skinExportPath { get; set; }
-        public string skinSave { get; set; }
+        public string? skinPath { get; set; }
+        public string? skinExportPath { get; set; }
+        public string? skinSave { get; set; }
     }
 }

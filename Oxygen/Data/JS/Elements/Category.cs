@@ -17,15 +17,16 @@ namespace Oxygen.Data.JS.Elements
         private string title_ = "";
         public string title { get => title_; set {
                 title_ = value;
-                if (Global.Editor != null) Global.Editor.categoriesListBox.Items[Global.Document.children.IndexOf(this)] = value;
+                if (Global.Editor != null && Global.Document != null) Global.Editor.categoriesListBox.Items[Global.Document.children.IndexOf(this)] = value;
             } }
-        public string innerText { get; set; }
-        private System.Windows.Forms.Control control { get; }
+        public string? innerText { get; set; }
+        private Control? control { get; }
 
         internal Category()
         {
             attributes = new Dictionary<string, string>();
             children = new List<IElement>();
+
         }
             internal void InitCategory(XElement element, Jint.Engine JSEngine)
             {
@@ -38,7 +39,7 @@ namespace Oxygen.Data.JS.Elements
                 switch (childElement.Name.ToString())
                 {
                     case "script":
-                        XAttribute srcFile = childElement.Attributes().ToList().Find((x) => x.Name == "src");
+                        XAttribute? srcFile = childElement.Attributes().ToList().Find((x) => x.Name == "src");
                         if (srcFile == null)
                         {
                             JSEngine.Execute(childElement.Value);

@@ -45,13 +45,16 @@ namespace Oxygen.Forms
         }
         private void updateTitle()
         {
-            if (Global.SkinConfig.skinSave == null)
+            if (Global.SkinData != null)
             {
-                Text = String.Format("Oxygen - {0}", Global.SkinData.Title);
-            }
-            else
-            {
-                Text = $"Oxygen - {Global.SkinData.Title} ({Global.SkinConfig.skinSave})";
+                if (Global.SkinConfig.skinSave == null)
+                {
+                    Text = String.Format("Oxygen - {0}", Global.SkinData.Title);
+                }
+                else
+                {
+                    Text = $"Oxygen - {Global.SkinData.Title} ({Global.SkinConfig.skinSave})";
+                }
             }
         }
 
@@ -92,12 +95,15 @@ namespace Oxygen.Forms
 
             if (categoriesListBox.SelectedIndex != lastCategory)
             {
-                settingsPanel.Controls.Clear();
-
-                int elementLocationY = 12;
-                foreach (Data.JS.IElement element in Global.Document.children[categoriesListBox.SelectedIndex].children)
+                if (Global.Document != null)
                 {
-                    elementLocationY += element.AddControl(settingsPanel, elementLocationY);
+                    settingsPanel.Controls.Clear();
+
+                    int elementLocationY = 12;
+                    foreach (Data.JS.IElement element in Global.Document.children[categoriesListBox.SelectedIndex].children)
+                    {
+                        elementLocationY += element.AddControl(settingsPanel, elementLocationY);
+                    }
                 }
                 lastCategory = categoriesListBox.SelectedIndex;
             }
@@ -288,7 +294,7 @@ namespace Oxygen.Forms
                     }
                 }
 
-                DateTime WriteTime = getWriteTime(Global.SkinConfig.skinPath);
+                DateTime WriteTime = getWriteTime(Global.SkinConfig.skinPath??"");
 
 
 

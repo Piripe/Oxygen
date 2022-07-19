@@ -1036,7 +1036,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaColorKey) ? Equals((TgaColorKey)obj) : false);
         }
@@ -1196,7 +1196,7 @@ namespace TGASharpLib
         /// <returns>Copy of <see cref="TgaColorMapSpec"/></returns>
         public TgaColorMapSpec Clone()
         {
-            return new TgaColorMapSpec(ToBytes());
+            return new TgaColorMapSpec(ToBytes() ?? new byte[] { });
         }
 
         /// <summary>
@@ -1208,7 +1208,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaColorMapSpec) ? Equals((TgaColorMapSpec)obj) : false);
         }
@@ -1254,7 +1254,7 @@ namespace TGASharpLib
         /// Convert ColorMapSpec to byte array.
         /// </summary>
         /// <returns>Byte array with length = 5.</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
             return BitConverterExt.ToBytes(firstEntryIndex, colorMapLength, (byte)colorMapEntrySize);
         }
@@ -1339,7 +1339,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaComment) ? Equals((TgaComment)obj) : false);
         }
@@ -1570,7 +1570,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaDateTime) ? Equals((TgaDateTime)obj) : false);
         }
@@ -1627,7 +1627,7 @@ namespace TGASharpLib
         /// Convert <see cref="TgaDateTime"/> to byte array.
         /// </summary>
         /// <returns>Byte array with length = 12.</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
             return BitConverterExt.ToBytes(month, day, year, hour, minute, second);
         }
@@ -1648,7 +1648,7 @@ namespace TGASharpLib
         ushort fieldTag = 0;
         uint fieldFileOffset = 0;
         // Field
-        byte[] data = null;
+        byte[]? data = null;
 
         /// <summary>
         /// Make empty <see cref="TgaDevEntry"/>.
@@ -1661,14 +1661,14 @@ namespace TGASharpLib
         /// Make <see cref="TgaDevEntry"/> from other <see cref="TgaDevEntry"/>.
         /// </summary>
         /// <param name="Entry">Some <see cref="TgaDevEntry"/> variable.</param>
-        public TgaDevEntry(TgaDevEntry Entry)
+        public TgaDevEntry(TgaDevEntry? Entry)
         {
-            if (Entry == null)
+            if (Entry is null)
                 throw new ArgumentNullException();
 
             fieldTag = Entry.fieldTag;
             fieldFileOffset = Entry.fieldFileOffset;
-            data = BitConverterExt.ToBytes(Entry.data);
+            data = BitConverterExt.ToBytes(Entry.data ?? new byte[] {});
         }
 
         /// <summary>
@@ -1677,7 +1677,7 @@ namespace TGASharpLib
         /// <param name="Tag">TAG ID (0 - 65535). See <see cref="Tag"/>.</param>
         /// <param name="Offset">TAG file offset in bytes. See <see cref="Offset"/>.</param>
         /// <param name="Data">This is DevEntry Field Data. See <see cref="Data"/>.</param>
-        public TgaDevEntry(ushort Tag, uint Offset, byte[] Data = null)
+        public TgaDevEntry(ushort Tag, uint Offset, byte[]? Data = null)
         {
             fieldTag = Tag;
             fieldFileOffset = Offset;
@@ -1729,7 +1729,7 @@ namespace TGASharpLib
         /// This means that if you anticipate changing a field, build flexibility into the format to make these
         /// changes easy on other developers.Major changes to an existing TAG’s definition should never happen.
         /// </summary>
-        public byte[] Data
+        public byte[]? Data
         {
             get { return data; }
             set { data = value; }
@@ -1774,7 +1774,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaDevEntry) ? Equals((TgaDevEntry)obj) : false);
         }
@@ -1832,7 +1832,7 @@ namespace TGASharpLib
         /// Convert <see cref="TgaDevEntry"/> to byte array. (Not include <see cref="Data"/>!).
         /// </summary>
         /// <returns>Byte array with length = 10.</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
             return BitConverterExt.ToBytes(fieldTag, fieldFileOffset, (data == null ? 0 : data.Length));
         }
@@ -1934,7 +1934,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaFraction) ? Equals((TgaFraction)obj) : false);
         }
@@ -1979,7 +1979,7 @@ namespace TGASharpLib
         /// Convert <see cref="TgaFraction"/> to byte array.
         /// </summary>
         /// <returns>Byte array with length = 4.</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
             return BitConverterExt.ToBytes(numerator, denominator);
         }
@@ -2052,7 +2052,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaImageDescriptor) ? Equals((TgaImageDescriptor)obj) : false);
         }
@@ -2237,7 +2237,7 @@ namespace TGASharpLib
         /// <returns></returns>
         public TgaImageSpec Clone()
         {
-            return new TgaImageSpec(ToBytes());
+            return new TgaImageSpec(ToBytes() ?? new byte[] {});
         }
 
         /// <summary>
@@ -2249,7 +2249,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaImageSpec) ? Equals((TgaImageSpec)obj) : false);
         }
@@ -2292,7 +2292,7 @@ namespace TGASharpLib
                 hash = hash * 23 + imageHeight.GetHashCode();
                 hash = hash * 23 + pixelDepth.GetHashCode();
 
-                if (imageDescriptor != null)
+                if (imageDescriptor is not null)
                     hash = hash * 23 + imageDescriptor.GetHashCode();
 
                 return hash;
@@ -2314,10 +2314,10 @@ namespace TGASharpLib
         /// Convert <see cref="TgaImageSpec"/> to byte array.
         /// </summary>
         /// <returns>Byte array with length = 10.</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
             return BitConverterExt.ToBytes(x_Origin, y_Origin, imageWidth, imageHeight,
-                (byte)pixelDepth, (imageDescriptor == null ? byte.MinValue : imageDescriptor.ToByte()));
+                (byte)pixelDepth, (imageDescriptor is null ? byte.MinValue : imageDescriptor.ToByte()));
         }
     }
 
@@ -2328,7 +2328,7 @@ namespace TGASharpLib
     {
         byte width = 0;
         byte height = 0;
-        byte[] data = null;
+        byte[]? data = null;
 
         public TgaPostageStampImage()
         {
@@ -2339,7 +2339,7 @@ namespace TGASharpLib
         /// </summary>
         /// <param name="Bytes">Bytes array, first 2 bytes are <see cref="Width"/> and <see cref="Height"/>,
         /// next bytes - image data.</param>
-        public TgaPostageStampImage(byte[] Bytes)
+        public TgaPostageStampImage(byte[]? Bytes)
         {
             if (Bytes == null)
                 throw new ArgumentNullException(nameof(Bytes) + " = null!");
@@ -2359,7 +2359,7 @@ namespace TGASharpLib
         /// <param name="Width">Image Width.</param>
         /// <param name="Height">Image Height.</param>
         /// <param name="Bytes">Postage Stamp Image Data.</param>
-        public TgaPostageStampImage(byte Width, byte Height, byte[] Bytes)
+        public TgaPostageStampImage(byte Width, byte Height, byte[]? Bytes)
         {
             if (Bytes == null)
                 throw new ArgumentNullException(nameof(Bytes) + " = null!");
@@ -2372,7 +2372,7 @@ namespace TGASharpLib
         /// <summary>
         /// Postage Stamp Image Data
         /// </summary>
-        public byte[] Data
+        public byte[]? Data
         {
             get { return data; }
             set { data = value; }
@@ -2402,7 +2402,7 @@ namespace TGASharpLib
         /// <returns>Full independent copy of <see cref="TgaPostageStampImage"/>.</returns>
         public TgaPostageStampImage Clone()
         {
-            return new TgaPostageStampImage(width, height, BitConverterExt.ToBytes(data));
+            return new TgaPostageStampImage(width, height, BitConverterExt.ToBytes(data ?? new byte[] { }));
         }
 
         /// <summary>
@@ -2414,7 +2414,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaPostageStampImage) ? Equals((TgaPostageStampImage)obj) : false);
         }
@@ -2464,9 +2464,9 @@ namespace TGASharpLib
         /// Convert <see cref="TgaPostageStampImage"/> to byte array.
         /// </summary>
         /// <returns>Byte array.</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
-            return BitConverterExt.ToBytes(width, height, data);
+            return BitConverterExt.ToBytes(width, height, data ?? new byte[] { });
         }
     }
 
@@ -2554,7 +2554,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaSoftVersion) ? Equals((TgaSoftVersion)obj) : false);
         }
@@ -2595,7 +2595,7 @@ namespace TGASharpLib
         /// </summary>
         /// <returns>Byte array, <see cref="VersionNumber"/> (2 bytes) and
         /// <see cref="VersionLetter"/> (ASCII symbol).</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
             return ToBytes(versionNumber, versionLetter);
         }
@@ -2606,7 +2606,7 @@ namespace TGASharpLib
         /// <param name="VersionNumber">Set 123 for 1.23 version.</param>
         /// <param name="VersionLetter">Version letter, example: for 'a' - "1.23a".</param>
         /// <returns>Byte array, <see cref="VersionNumber"/> (2 bytes) and <see cref="VersionLetter"/> (ASCII symbol).</returns>
-        public static byte[] ToBytes(ushort VersionNumber, char VersionLetter = ' ')
+        public static byte[]? ToBytes(ushort VersionNumber, char VersionLetter = ' ')
         {
             return BitConverterExt.ToBytes(VersionNumber, Encoding.ASCII.GetBytes(VersionLetter.ToString()));
         }
@@ -2630,7 +2630,7 @@ namespace TGASharpLib
             useEnding = UseEnding;
         }
 
-        public TgaString(byte[] Bytes, bool UseEnding = false)
+        public TgaString(byte[]? Bytes, bool UseEnding = false)
         {
             if (Bytes == null)
                 throw new ArgumentNullException(nameof(Bytes) + " = null!");
@@ -2742,7 +2742,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaString) ? Equals((TgaString)obj) : false);
         }
@@ -2952,7 +2952,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaTime) ? Equals((TgaTime)obj) : false);
         }
@@ -3002,7 +3002,7 @@ namespace TGASharpLib
         /// Convert <see cref="TgaTime"/> to byte array.
         /// </summary>
         /// <returns>Byte array with length = 6.</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
             return BitConverterExt.ToBytes(hours, minutes, seconds);
         }
@@ -3041,7 +3041,7 @@ namespace TGASharpLib
         /// Make <see cref="TgaHeader"/> from bytes.
         /// </summary>
         /// <param name="Bytes">Bytes array (byte[18]).</param>
-        public TgaHeader(byte[] Bytes)
+        public TgaHeader(byte[]? Bytes)
         {
             if (Bytes == null)
                 throw new ArgumentNullException(nameof(Bytes) + " = null!");
@@ -3137,7 +3137,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaHeader) ? Equals((TgaHeader)obj) : false);
         }
@@ -3174,10 +3174,10 @@ namespace TGASharpLib
                 int hash = 17;
                 hash = hash * 23 + (idLength << 24 | (byte)colorMapType << 8 | (byte)imageType).GetHashCode();
 
-                if (colorMapSpec != null)
+                if (colorMapSpec is not null)
                     hash = hash * 23 + colorMapSpec.GetHashCode();
 
-                if (imageSpec != null)
+                if (imageSpec is not null)
                     hash = hash * 23 + imageSpec.GetHashCode();
 
                 return hash;
@@ -3198,11 +3198,11 @@ namespace TGASharpLib
         /// Convert <see cref="TgaHeader"/> to byte array.
         /// </summary>
         /// <returns>Byte array with size equal <see cref="Size"/>.</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
             return BitConverterExt.ToBytes(idLength, (byte)colorMapType, (byte)imageType,
-                (colorMapSpec == null ? new byte[TgaColorMapSpec.Size] : colorMapSpec.ToBytes()),
-                (imageSpec == null ? new byte[TgaImageSpec.Size] : imageSpec.ToBytes()));
+                (colorMapSpec is null ? new byte[TgaColorMapSpec.Size] : colorMapSpec.ToBytes() ?? new byte[] { }),
+                (imageSpec is null ? new byte[TgaImageSpec.Size] : imageSpec.ToBytes() ?? new byte[] { }));
         }
     }
 
@@ -3211,9 +3211,9 @@ namespace TGASharpLib
     /// </summary>
     public class TgaImgOrColMap : ICloneable
     {
-        TgaString imageID = null;
-        byte[] colorMapData = null;
-        byte[] imageData = null;
+        TgaString? imageID = null;
+        byte[]? colorMapData = null;
+        byte[]? imageData = null;
 
         /// <summary>
         /// Make empty <see cref="TgaImgOrColMap"/>.
@@ -3231,7 +3231,7 @@ namespace TGASharpLib
         /// then these bytes are not written to the file.</param>
         /// <param name="ColorMapData">Color Map Data, see <see cref="ColorMapData"/> description.</param>
         /// <param name="ImageData">Image Data, see <see cref="ImageData"/> description.</param>
-        public TgaImgOrColMap(TgaString ImageID, byte[] ColorMapData, byte[] ImageData)
+        public TgaImgOrColMap(TgaString? ImageID, byte[]? ColorMapData, byte[]? ImageData)
         {
             imageID = ImageID;
             colorMapData = ColorMapData;
@@ -3245,7 +3245,7 @@ namespace TGASharpLib
         /// field. If field 1 is set to Zero indicating that no Image ID exists then these bytes are not
         /// written to the file. Can have text inside (ASCII).</para>
         /// </summary>
-        public TgaString ImageID
+        public TgaString? ImageID
         {
             get { return imageID; }
             set { imageID = value; }
@@ -3269,7 +3269,7 @@ namespace TGASharpLib
         /// For the TARGA M-8, ATVista and NuVista, the number of bits in a color map specification is
         /// 24 (or 32). The red, green, and blue components are each represented by one byte.
         /// </summary>
-        public byte[] ColorMapData
+        public byte[]? ColorMapData
         {
             get { return colorMapData; }
             set { colorMapData = value; }
@@ -3286,7 +3286,7 @@ namespace TGASharpLib
         /// The number of attribute and color-definition bits for each pixel are defined in Fields 5.6
         /// and 5.5, respectively.Each pixel is stored as an integral number of bytes.</para>
         /// </summary>
-        public byte[] ImageData
+        public byte[]? ImageData
         {
             get { return imageData; }
             set { imageData = value; }
@@ -3299,7 +3299,7 @@ namespace TGASharpLib
         public TgaImgOrColMap Clone()
         {
             return new TgaImgOrColMap(
-                (imageID == null ? null : imageID.Clone()),
+                (imageID is null ? null : imageID.Clone()),
                 (colorMapData == null ? null : (byte[])colorMapData.Clone()),
                 (imageData == null ? null : (byte[])imageData.Clone()));
         }
@@ -3313,14 +3313,14 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaImgOrColMap) ? Equals((TgaImgOrColMap)obj) : false);
         }
 
         public bool Equals(TgaImgOrColMap item)
         {
-            return imageID == item.imageID &&
+            return (imageID ?? new TgaString()) == (item.imageID ?? new TgaString()) &&
                 BitConverterExt.IsArraysEqual(colorMapData, item.colorMapData) &&
                 BitConverterExt.IsArraysEqual(imageData, item.imageData);
         }
@@ -3347,7 +3347,7 @@ namespace TGASharpLib
             {
                 int hash = 27;
 
-                if (imageID != null)
+                if (imageID is not null)
                     hash = (13 * hash) + imageID.GetHashCode();
                 if (colorMapData != null)
                     for (int i = 0; i < colorMapData.Length; i++)
@@ -3372,7 +3372,7 @@ namespace TGASharpLib
         {
         }
 
-        public TgaDevArea(List<TgaDevEntry> Entries)
+        public TgaDevArea(List<TgaDevEntry>? Entries)
         {
             if (Entries == null)
                 throw new ArgumentNullException(nameof(Entries) + " = null!");
@@ -3425,7 +3425,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaDevArea) ? Equals((TgaDevArea)obj) : false);
         }
@@ -3509,10 +3509,10 @@ namespace TGASharpLib
         uint postageStampOffset = 0;
         uint scanLineOffset = 0;
         TgaAttrType attributesType = TgaAttrType.NoAlpha;
-        uint[] scanLineTable = null;
-        TgaPostageStampImage postageStampImage = null;
-        ushort[] colorCorrectionTable = null;
-        byte[] otherDataInExtensionArea = null;
+        uint[]? scanLineTable = null;
+        TgaPostageStampImage? postageStampImage = null;
+        ushort[]? colorCorrectionTable = null;
+        byte[]? otherDataInExtensionArea = null;
 
         public TgaExtArea()
         {
@@ -3527,7 +3527,7 @@ namespace TGASharpLib
         /// <param name="SLT">Scan Line Table.</param>
         /// <param name="PostImg">Postage Stamp Image.</param>
         /// <param name="CCT">Color Correction Table.</param>
-        public TgaExtArea(byte[] Bytes, uint[] SLT = null, TgaPostageStampImage PostImg = null, ushort[] CCT = null)
+        public TgaExtArea(byte[] Bytes, uint[]? SLT = null, TgaPostageStampImage? PostImg = null, ushort[]? CCT = null)
         {
             if (Bytes == null)
                 throw new ArgumentNullException(nameof(Bytes) + " = null!");
@@ -3827,7 +3827,7 @@ namespace TGASharpLib
         /// 4-byte offset pointers (for a total of 3072 bytes). This size is not extreme, and thus this table
         /// can be built and maintained in memory, and then written out at the proper time.
         /// </summary>
-        public uint[] ScanLineTable
+        public uint[]? ScanLineTable
         {
             get { return scanLineTable; }
             set { scanLineTable = value; }
@@ -3847,7 +3847,7 @@ namespace TGASharpLib
         /// the assumption that if you can read the image, then you can read the postage stamp. If the original
         /// image is color mapped, DO NOT average the postage stamp, as you will create new colors not in your map.
         /// </summary>
-        public TgaPostageStampImage PostageStampImage
+        public TgaPostageStampImage? PostageStampImage
         {
             get { return postageStampImage; }
             set { postageStampImage = value; }
@@ -3862,7 +3862,7 @@ namespace TGASharpLib
         /// A, R, G, B) is 65535, and the minimum value is zero.Therefore, BLACK maps to
         /// 0, 0, 0, 0 and WHITE maps to 65535, 65535, 65535, 65535.
         /// </summary>
-        public ushort[] ColorCorrectionTable
+        public ushort[]? ColorCorrectionTable
         {
             get { return colorCorrectionTable; }
             set { colorCorrectionTable = value; }
@@ -3871,7 +3871,7 @@ namespace TGASharpLib
         /// <summary>
         /// Other Data In Extension Area (if <see cref="ExtensionSize"/> > 495).
         /// </summary>
-        public byte[] OtherDataInExtensionArea
+        public byte[]? OtherDataInExtensionArea
         {
             get { return otherDataInExtensionArea; }
             set { otherDataInExtensionArea = value; }
@@ -3903,7 +3903,7 @@ namespace TGASharpLib
 
             if (scanLineTable != null)
                 NewExtArea.scanLineTable = (uint[])scanLineTable.Clone();
-            if (postageStampImage != null)
+            if (postageStampImage is not null)
                 NewExtArea.postageStampImage = new TgaPostageStampImage(postageStampImage.ToBytes());
             if (colorCorrectionTable != null)
                 NewExtArea.colorCorrectionTable = (ushort[])colorCorrectionTable.Clone();
@@ -3923,7 +3923,7 @@ namespace TGASharpLib
             return Clone();
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaExtArea) ? Equals((TgaExtArea)obj) : false);
         }
@@ -3947,7 +3947,7 @@ namespace TGASharpLib
                 attributesType == item.attributesType &&
 
                 BitConverterExt.IsArraysEqual(scanLineTable, item.scanLineTable) &&
-                postageStampImage == item.postageStampImage &&
+                (postageStampImage ?? new TgaPostageStampImage()) == (item.postageStampImage ?? new TgaPostageStampImage()) &&
                 BitConverterExt.IsArraysEqual(colorCorrectionTable, item.colorCorrectionTable) &&
 
                 BitConverterExt.IsArraysEqual(otherDataInExtensionArea, item.otherDataInExtensionArea));
@@ -3994,7 +3994,7 @@ namespace TGASharpLib
                     for (int i = 0; i < scanLineTable.Length; i++)
                         hash = (13 * hash) + scanLineTable[i].GetHashCode();
 
-                if (postageStampImage != null)
+                if (postageStampImage is not null)
                     hash = (13 * hash) + postageStampImage.GetHashCode();
 
                 if (colorCorrectionTable != null)
@@ -4015,37 +4015,37 @@ namespace TGASharpLib
         /// because thea are can be not in the Extension Area of TGA file!
         /// </summary>
         /// <returns>Byte array.</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
             #region Exceptions check
-            if (authorName == null)
+            if (authorName is null)
                 authorName = new TgaString(41, true);
 
-            if (authorComments == null)
+            if (authorComments is null)
                 authorComments = new TgaComment();
 
-            if (dateTimeStamp == null)
+            if (dateTimeStamp is null)
                 dateTimeStamp = new TgaDateTime(DateTime.UtcNow);
 
-            if (jobNameOrID == null)
+            if (jobNameOrID is null)
                 jobNameOrID = new TgaString(41, true);
 
-            if (jobTime == null)
+            if (jobTime is null)
                 jobTime = new TgaTime();
 
-            if (softwareID == null)
+            if (softwareID is null)
                 softwareID = new TgaString(41, true);
 
-            if (softVersion == null)
+            if (softVersion is null)
                 softVersion = new TgaSoftVersion();
 
-            if (keyColor == null)
+            if (keyColor is null)
                 keyColor = new TgaColorKey();
 
-            if (pixelAspectRatio == null)
+            if (pixelAspectRatio is null)
                 pixelAspectRatio = new TgaFraction();
 
-            if (gammaValue == null)
+            if (gammaValue is null)
                 gammaValue = new TgaFraction();
             #endregion
 
@@ -4053,19 +4053,19 @@ namespace TGASharpLib
                 extensionSize,
                 authorName.ToBytes(),
                 authorComments.ToBytes(),
-                dateTimeStamp.ToBytes(),
+                dateTimeStamp.ToBytes() ?? new byte[] { },
                 jobNameOrID.ToBytes(),
-                jobTime.ToBytes(),
+                jobTime.ToBytes() ?? new byte[] { },
                 softwareID.ToBytes(),
-                softVersion.ToBytes(),
+                softVersion.ToBytes() ?? new byte[] { },
                 keyColor.ToBytes(),
-                pixelAspectRatio.ToBytes(),
-                gammaValue.ToBytes(),
+                pixelAspectRatio.ToBytes() ?? new byte[] { },
+                gammaValue.ToBytes() ?? new byte[] { },
                 colorCorrectionOffset,
                 postageStampOffset,
                 scanLineOffset,
                 (byte)attributesType,
-                otherDataInExtensionArea);
+                otherDataInExtensionArea ?? new byte[] { });
         }
     } //Not full ToBytes()
 
@@ -4208,7 +4208,7 @@ namespace TGASharpLib
         /// </summary>
         public const int Size = 26;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return ((obj is TgaFooter) ? Equals((TgaFooter)obj) : false);
         }
@@ -4246,13 +4246,13 @@ namespace TGASharpLib
                 hash = hash * 23 + extAreaOffset.GetHashCode();
                 hash = hash * 23 + devDirOffset.GetHashCode();
 
-                if (signature != null)
+                if (signature is not null)
                     hash = hash * 23 + signature.GetHashCode();
 
-                if (reservedChar != null)
+                if (reservedChar is not null)
                     hash = hash * 23 + reservedChar.GetHashCode();
 
-                if (zeroStrTerminator != null)
+                if (zeroStrTerminator is not null)
                     hash = hash * 23 + zeroStrTerminator.GetHashCode();
 
                 return hash;
@@ -4270,7 +4270,7 @@ namespace TGASharpLib
         /// Convert <see cref="TgaFooter"/> to byte array.
         /// </summary>
         /// <returns>Byte array with size equal <see cref="Size"/>.</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
             return BitConverterExt.ToBytes(extAreaOffset, devDirOffset,
                 signature.ToBytes(), reservedChar.ToBytes(), zeroStrTerminator.ToBytes());
@@ -4298,7 +4298,7 @@ namespace TGASharpLib
         /// </summary>
         /// <param name="obj">Array of byte, byte[], (u)short, (u)int, (u)long values.</param>
         /// <returns>Array of bytes, null when some object is null.</returns>
-        public static byte[] ToBytes(params object[] obj)
+        public static byte[]? ToBytes(params object[]? obj)
         {
             if (obj == null)
                 return null;
@@ -4361,7 +4361,7 @@ namespace TGASharpLib
         /// <param name="item1">First Array.</param>
         /// <param name="item2">Second Array.</param>
         /// <returns>True, if Arrays are equal.</returns>
-        public static bool IsArraysEqual<T>(T[] item1, T[] item2)
+        public static bool IsArraysEqual<T>(T[]? item1, T[]? item2)
         {
             if (ReferenceEquals(item1, item2))
                 return true;
@@ -4386,7 +4386,7 @@ namespace TGASharpLib
         /// <param name="item1">First List.</param>
         /// <param name="item2">Second List.</param>
         /// <returns>True, if Lists are equal.</returns>
-        public static bool IsListsEqual<T>(List<T> item1, List<T> item2)
+        public static bool IsListsEqual<T>(List<T> item1, List<T> item2) where T : notnull
         {
             if (ReferenceEquals(item1, item2))
                 return true;
@@ -4412,7 +4412,7 @@ namespace TGASharpLib
         /// <param name="Offset2">Second offset.</param>
         /// <param name="Count">Elements count which must be compared.</param>
         /// <returns></returns>
-        public static bool IsElementsEqual<T>(T[] Arr, int Offset1, int Offset2, int Count)
+        public static bool IsElementsEqual<T>(T[] Arr, int Offset1, int Offset2, int Count) where T : notnull
         {
             if (Arr == null)
                 throw new ArgumentNullException(nameof(Arr) + " is null!");
@@ -4442,9 +4442,9 @@ namespace TGASharpLib
     {
         public TgaHeader Header = new TgaHeader();
         public TgaImgOrColMap ImageOrColorMapArea = new TgaImgOrColMap();
-        public TgaDevArea DevArea = null;
-        public TgaExtArea ExtArea = null;
-        public TgaFooter Footer = null;
+        public TgaDevArea? DevArea = null;
+        public TgaExtArea? ExtArea = null;
+        public TgaFooter? Footer = null;
 
         #region TGA Creation, Loading, Saving (all are public, have reference to private metods).
         /// <summary>
@@ -4511,9 +4511,9 @@ namespace TGASharpLib
         {
             Header = tga.Header.Clone();
             ImageOrColorMapArea = tga.ImageOrColorMapArea.Clone();
-            DevArea = tga.DevArea.Clone();
-            ExtArea = tga.ExtArea.Clone();
-            Footer = tga.Footer.Clone();
+            DevArea = (tga.DevArea??new TgaDevArea()).Clone();
+            ExtArea = (tga.ExtArea??new TgaExtArea()).Clone();
+            Footer = (tga.Footer??new TgaFooter()).Clone();
         }
 
         /// <summary>
@@ -4723,7 +4723,7 @@ namespace TGASharpLib
             SB.AppendLine("\t\tFirstEntry Index = " + Header.ColorMapSpec.FirstEntryIndex);
 
             SB.AppendLine("\nImage / Color Map Area:");
-            if (Header.IDLength > 0 && ImageOrColorMapArea.ImageID != null)
+            if (Header.IDLength > 0 && ImageOrColorMapArea.ImageID is not null)
                 SB.AppendLine("\tImage ID = \"" + ImageOrColorMapArea.ImageID.GetString() + "\"");
             else
                 SB.AppendLine("\tImage ID = null");
@@ -4739,13 +4739,13 @@ namespace TGASharpLib
                 SB.AppendLine("\tColorMap Data = null");
 
             SB.AppendLine("\nDevelopers Area:");
-            if (DevArea != null)
+            if (DevArea is not null)
                 SB.AppendLine("\tCount = " + DevArea.Count);
             else
                 SB.AppendLine("\tDevArea = null");
 
             SB.AppendLine("\nExtension Area:");
-            if (ExtArea != null)
+            if (ExtArea is not null)
             {
                 SB.AppendLine("\tExtension Size = " + ExtArea.ExtensionSize);
                 SB.AppendLine("\tAuthor Name = \"" + ExtArea.AuthorName.GetString() + "\"");
@@ -4768,7 +4768,7 @@ namespace TGASharpLib
                 else
                     SB.AppendLine("\tScan Line Table = null");
 
-                if (ExtArea.PostageStampImage != null)
+                if (ExtArea.PostageStampImage is not null)
                     SB.AppendLine("\tPostage Stamp Image: " + ExtArea.PostageStampImage.ToString());
                 else
                     SB.AppendLine("\tPostage Stamp Image = null");
@@ -4779,7 +4779,7 @@ namespace TGASharpLib
                 SB.AppendLine("\tExtArea = null");
 
             SB.AppendLine("\nFooter:");
-            if (Footer != null)
+            if (Footer is not null)
             {
                 SB.AppendLine("\tExtension Area Offset = " + Footer.ExtensionAreaOffset);
                 SB.AppendLine("\tDeveloper Directory Offset = " + Footer.DeveloperDirectoryOffset);
@@ -4800,13 +4800,13 @@ namespace TGASharpLib
         {
             ErrorStr = String.Empty;
 
-            if (Header == null)
+            if (Header is null)
             {
                 ErrorStr = "Header = null";
                 return false;
             }
 
-            if (ImageOrColorMapArea == null)
+            if (ImageOrColorMapArea is null)
             {
                 ErrorStr = "ImageOrColorMapArea = null";
                 return false;
@@ -4815,7 +4815,7 @@ namespace TGASharpLib
             uint Offset = TgaHeader.Size; // Virtual Offset
 
             #region Header
-            if (ImageOrColorMapArea.ImageID != null)
+            if (ImageOrColorMapArea.ImageID is not null)
             {
                 int StrMaxLen = 255;
                 if (ImageOrColorMapArea.ImageID.UseEndingChar)
@@ -4832,7 +4832,7 @@ namespace TGASharpLib
             #region ColorMap
             if (Header.ColorMapType != TgaColorMapType.NoColorMap)
             {
-                if (Header.ColorMapSpec == null)
+                if (Header.ColorMapSpec is null)
                 {
                     ErrorStr = "Header.ColorMapSpec = null";
                     return false;
@@ -4867,7 +4867,7 @@ namespace TGASharpLib
             int BytesPerPixel = 0;
             if (Header.ImageType != TgaImageType.NoImageData)
             {
-                if (Header.ImageSpec == null)
+                if (Header.ImageSpec is null)
                 {
                     ErrorStr = "Header.ImageSpec = null";
                     return false;
@@ -4895,7 +4895,7 @@ namespace TGASharpLib
                 if (Header.ImageType >= TgaImageType.RLE_ColorMapped &&
                     Header.ImageType <= TgaImageType.RLE_BlackWhite)
                 {
-                    byte[] RLE = RLE_Encode(ImageOrColorMapArea.ImageData, Width, Height);
+                    byte[]? RLE = RLE_Encode(ImageOrColorMapArea.ImageData, Width, Height);
                     if (RLE == null)
                     {
                         ErrorStr = "RLE Compressing error! Check Image Data size.";
@@ -4911,14 +4911,14 @@ namespace TGASharpLib
             #endregion
 
             #region Footer, DevArea, ExtArea
-            if (Footer != null)
+            if (Footer is not null)
             {
                 #region DevArea
-                if (DevArea != null)
+                if (DevArea is not null)
                 {
                     int DevAreaCount = DevArea.Count;
                     for (int i = 0; i < DevAreaCount; i++)
-                        if (DevArea[i] == null || DevArea[i].FieldSize <= 0) //Del Empty Entries
+                        if (DevArea[i] is null || DevArea[i].FieldSize <= 0) //Del Empty Entries
                         {
                             DevArea.Entries.RemoveAt(i);
                             DevAreaCount--;
@@ -4953,7 +4953,7 @@ namespace TGASharpLib
                 #endregion
 
                 #region ExtArea
-                if (ExtArea != null)
+                if (ExtArea is not null)
                 {
                     ExtArea.ExtensionSize = TgaExtArea.MinSize;
                     if (ExtArea.OtherDataInExtensionArea != null)
@@ -4981,7 +4981,7 @@ namespace TGASharpLib
                     #endregion
 
                     #region PostageStampImage
-                    if (ExtArea.PostageStampImage == null)
+                    if (ExtArea.PostageStampImage is null)
                         ExtArea.PostageStampOffset = 0;
                     else
                     {
@@ -5032,7 +5032,7 @@ namespace TGASharpLib
                 #endregion
 
                 #region Footer
-                if (Footer.ToBytes().Length != TgaFooter.Size)
+                if ((Footer.ToBytes() ?? new byte[]{}).Length != TgaFooter.Size)
                 {
                     ErrorStr = "Footer.Length is wrong!";
                     return false;
@@ -5052,7 +5052,7 @@ namespace TGASharpLib
         /// </summary>
         /// <param name="ForceUseAlpha">Force use alpha channel.</param>
         /// <returns>Bitmap or null, on error.</returns>
-        public Bitmap ToBitmap(bool ForceUseAlpha = false)
+        public Bitmap? ToBitmap(bool ForceUseAlpha = false)
         {
             return ToBitmapFunc(ForceUseAlpha, false);
         }
@@ -5061,7 +5061,7 @@ namespace TGASharpLib
         /// Convert <see cref="TGA"/> to bytes array.
         /// </summary>
         /// <returns>Bytes array, (equal to saved file, but in memory) or null (on error).</returns>
-        public byte[] ToBytes()
+        public byte[]? ToBytes()
         {
             try
             {
@@ -5085,10 +5085,10 @@ namespace TGASharpLib
         /// </summary>
         public void ToNewFormat()
         {
-            if (Footer == null)
+            if (Footer is null)
                 Footer = new TgaFooter();
 
-            if (ExtArea == null)
+            if (ExtArea is null)
             {
                 ExtArea = new TgaExtArea();
 
@@ -5173,7 +5173,7 @@ namespace TGASharpLib
                             int DataOffset = 0;
                             byte PacketInfo;
                             int PacketCount;
-                            byte[] RLE_Bytes, RLE_Part;
+                            byte[]? RLE_Bytes, RLE_Part;
                             ImageOrColorMapArea.ImageData = new byte[ImageDataSize];
 
                             do
@@ -5224,9 +5224,9 @@ namespace TGASharpLib
                         DevArea = new TgaDevArea();
                         uint NumberOfTags = Br.ReadUInt16();
 
-                        ushort[] Tags = new ushort[NumberOfTags];
-                        uint[] TagOffsets = new uint[NumberOfTags];
-                        uint[] TagSizes = new uint[NumberOfTags];
+                        ushort[]? Tags = new ushort[NumberOfTags];
+                        uint[]? TagOffsets = new uint[NumberOfTags];
+                        uint[]? TagSizes = new uint[NumberOfTags];
 
                         for (int i = 0; i < NumberOfTags; i++)
                         {
@@ -5475,10 +5475,10 @@ namespace TGASharpLib
                         int StrideBytes = bmp.Width * BytesPP;
                         int PaddingBytes = (int)Math.Ceiling(StrideBytes / 4.0) * 4 - StrideBytes;
 
-                        byte[] ImageData = new byte[(StrideBytes + PaddingBytes) * bmp.Height];
+                        byte[]? ImageData = new byte[(StrideBytes + PaddingBytes) * bmp.Height];
 
                         Rectangle Re = new Rectangle(0, 0, bmp.Width, bmp.Height);
-                        BitmapData BmpData = bmp.LockBits(Re, ImageLockMode.ReadOnly, bmp.PixelFormat);
+                        BitmapData? BmpData = bmp.LockBits(Re, ImageLockMode.ReadOnly, bmp.PixelFormat);
                         Marshal.Copy(BmpData.Scan0, ImageData, 0, ImageData.Length);
                         bmp.UnlockBits(BmpData);
                         BmpData = null;
@@ -5528,33 +5528,33 @@ namespace TGASharpLib
                     return false;
 
                 BinaryWriter Bw = new BinaryWriter(stream);
-                Bw.Write(Header.ToBytes());
+                Bw.Write(Header.ToBytes() ?? new byte[] { });
 
-                if (ImageOrColorMapArea.ImageID != null)
+                if (ImageOrColorMapArea.ImageID is not null)
                     Bw.Write(ImageOrColorMapArea.ImageID.ToBytes());
 
                 if (Header.ColorMapType != TgaColorMapType.NoColorMap)
-                    Bw.Write(ImageOrColorMapArea.ColorMapData);
+                    Bw.Write(ImageOrColorMapArea.ColorMapData ?? new byte[] { });
 
                 #region ImageData
                 if (Header.ImageType != TgaImageType.NoImageData)
                 {
                     if (Header.ImageType >= TgaImageType.RLE_ColorMapped &&
                         Header.ImageType <= TgaImageType.RLE_BlackWhite)
-                        Bw.Write(RLE_Encode(ImageOrColorMapArea.ImageData, Width, Height));
+                        Bw.Write(RLE_Encode(ImageOrColorMapArea.ImageData ?? new byte[] { }, Width, Height) ?? new byte[] { });
                     else
-                        Bw.Write(ImageOrColorMapArea.ImageData);
+                        Bw.Write(ImageOrColorMapArea.ImageData ?? new byte[] { });
                 }
                 #endregion
 
                 #region Footer
-                if (Footer != null)
+                if (Footer is not null)
                 {
                     #region DevArea
-                    if (DevArea != null)
+                    if (DevArea is not null)
                     {
                         for (int i = 0; i < DevArea.Count; i++)
-                            Bw.Write(DevArea[i].Data);
+                            Bw.Write(DevArea[i].Data ?? new byte[] { });
 
                         Bw.Write((ushort)DevArea.Count);
 
@@ -5568,16 +5568,16 @@ namespace TGASharpLib
                     #endregion
 
                     #region ExtArea
-                    if (ExtArea != null)
+                    if (ExtArea is not null)
                     {
-                        Bw.Write(ExtArea.ToBytes());
+                        Bw.Write(ExtArea.ToBytes() ?? new byte[] { });
 
                         if (ExtArea.ScanLineTable != null)
                             for (int i = 0; i < ExtArea.ScanLineTable.Length; i++)
                                 Bw.Write(ExtArea.ScanLineTable[i]);
 
-                        if (ExtArea.PostageStampImage != null)
-                            Bw.Write(ExtArea.PostageStampImage.ToBytes());
+                        if (ExtArea.PostageStampImage is not null)
+                            Bw.Write(ExtArea.PostageStampImage.ToBytes() ?? new byte[] { });
 
                         if (ExtArea.ColorCorrectionTable != null)
                             for (int i = 0; i < ExtArea.ColorCorrectionTable.Length; i++)
@@ -5585,7 +5585,7 @@ namespace TGASharpLib
                     }
                     #endregion
 
-                    Bw.Write(Footer.ToBytes());
+                    Bw.Write(Footer.ToBytes() ?? new byte[] { });
                 }
                 #endregion
 
@@ -5606,7 +5606,7 @@ namespace TGASharpLib
         /// <param name="Width">Image Width, must be > 0.</param>
         /// <param name="Height">Image Height, must be > 0.</param>
         /// <returns>Bytes array with RLE compressed image data.</returns>
-        byte[] RLE_Encode(byte[] ImageData, int Width, int Height)
+        byte[]? RLE_Encode(byte[] ImageData, int Width, int Height)
         {
             if (ImageData == null)
                 throw new ArgumentNullException(nameof(ImageData) + "in null!");
@@ -5678,13 +5678,13 @@ namespace TGASharpLib
         /// <param name="ForceUseAlpha">Force use alpha channel.</param>
         /// <param name="PostageStampImage">Get Postage Stamp Image (Thumb) or get main image?</param>
         /// <returns>Bitmap or null, on error.</returns>
-        Bitmap ToBitmapFunc(bool ForceUseAlpha = false, bool PostageStampImage = false)
+        Bitmap? ToBitmapFunc(bool ForceUseAlpha = false, bool PostageStampImage = false)
         {
             try
             {
                 #region UseAlpha?
                 bool UseAlpha = true;
-                if (ExtArea != null)
+                if (ExtArea is not null)
                 {
                     switch (ExtArea.AttributesType)
                     {
@@ -5746,6 +5746,10 @@ namespace TGASharpLib
                 }
                 #endregion
 
+                if (ExtArea is null)
+                    throw new Exception();
+                if (ExtArea.PostageStampImage is null)
+                    throw new Exception();
                 ushort BMP_Width = (PostageStampImage ? ExtArea.PostageStampImage.Width : Width);
                 ushort BMP_Height = (PostageStampImage ? ExtArea.PostageStampImage.Height : Height);
                 Bitmap BMP = new Bitmap(BMP_Width, BMP_Height, PixFormat);
@@ -5756,7 +5760,7 @@ namespace TGASharpLib
                     Header.ImageType == TgaImageType.Uncompressed_ColorMapped))
                 {
 
-                    ColorPalette ColorMap = BMP.Palette;
+                    ColorPalette? ColorMap = BMP.Palette;
                     Color[] CMapColors = ColorMap.Entries;
 
                     switch (Header.ColorMapSpec.ColorMapEntrySize)
@@ -5766,7 +5770,7 @@ namespace TGASharpLib
                             const float To8Bit = 255f / 31f; // Scale value from 5 to 8 bits.
                             for (int i = 0; i < Math.Min(CMapColors.Length, Header.ColorMapSpec.ColorMapLength); i++)
                             {
-                                ushort A1R5G5B5 = BitConverter.ToUInt16(ImageOrColorMapArea.ColorMapData, i * 2);
+                                ushort A1R5G5B5 = BitConverter.ToUInt16(ImageOrColorMapArea.ColorMapData ?? new byte[] { }, i * 2);
                                 int A = (UseAlpha ? (A1R5G5B5 & 0x8000) >> 15 : 1) * 255; // (0 or 1) * 255
                                 int R = (int)(((A1R5G5B5 & 0x7C00) >> 10) * To8Bit);
                                 int G = (int)(((A1R5G5B5 & 0x3E0) >> 5) * To8Bit);
@@ -5776,6 +5780,8 @@ namespace TGASharpLib
                             break;
 
                         case TgaColorMapEntrySize.R8G8B8:
+                            if (ImageOrColorMapArea.ColorMapData is null)
+                                throw new Exception();
                             for (int i = 0; i < Math.Min(CMapColors.Length, Header.ColorMapSpec.ColorMapLength); i++)
                             {
                                 int Index = i * 3; //RGB = 3 bytes
@@ -5789,7 +5795,7 @@ namespace TGASharpLib
                         case TgaColorMapEntrySize.A8R8G8B8:
                             for (int i = 0; i < Math.Min(CMapColors.Length, Header.ColorMapSpec.ColorMapLength); i++)
                             {
-                                int ARGB = BitConverter.ToInt32(ImageOrColorMapArea.ColorMapData, i * 4);
+                                int ARGB = BitConverter.ToInt32(ImageOrColorMapArea.ColorMapData ?? new byte[] { }, i * 4);
                                 CMapColors[i] = Color.FromArgb(UseAlpha ? ARGB | (0xFF << 24) : ARGB);
                             }
                             break;
@@ -5814,7 +5820,7 @@ namespace TGASharpLib
                 #endregion
 
                 #region Bitmap width must by aligned (align value = 32 bits = 4 bytes)!
-                byte[] ImageData;
+                byte[]? ImageData;
                 int BytesPerPixel = (int)Math.Ceiling((double)Header.ImageSpec.PixelDepth / 8.0);
                 int StrideBytes = BMP.Width * BytesPerPixel;
                 int PaddingBytes = (int)Math.Ceiling(StrideBytes / 4.0) * 4 - StrideBytes;
@@ -5823,13 +5829,13 @@ namespace TGASharpLib
                 {
                     ImageData = new byte[(StrideBytes + PaddingBytes) * BMP.Height];
                     for (int i = 0; i < BMP.Height; i++)
-                        Buffer.BlockCopy(PostageStampImage ? ExtArea.PostageStampImage.Data :
-                            ImageOrColorMapArea.ImageData, i * StrideBytes, ImageData,
+                        Buffer.BlockCopy((PostageStampImage ? ExtArea.PostageStampImage.Data :
+                            ImageOrColorMapArea.ImageData) ?? new byte[] { }, i * StrideBytes, ImageData,
                             i * (StrideBytes + PaddingBytes), StrideBytes);
                 }
                 else
-                    ImageData = BitConverterExt.ToBytes(PostageStampImage ? ExtArea.PostageStampImage.Data :
-                        ImageOrColorMapArea.ImageData);
+                    ImageData = BitConverterExt.ToBytes((PostageStampImage ? ExtArea.PostageStampImage.Data :
+                        ImageOrColorMapArea.ImageData) ?? new byte[] { }) ?? new byte[] { };
 
                 // Not official supported, but works (tested on 2 test images)!
                 if (PixFormat == PixelFormat.Format16bppGrayScale)
@@ -5840,13 +5846,13 @@ namespace TGASharpLib
                 #endregion
 
                 Rectangle Re = new Rectangle(0, 0, BMP.Width, BMP.Height);
-                BitmapData BmpData = BMP.LockBits(Re, ImageLockMode.WriteOnly, BMP.PixelFormat);
+                BitmapData? BmpData = BMP.LockBits(Re, ImageLockMode.WriteOnly, BMP.PixelFormat);
                 Marshal.Copy(ImageData, 0, BmpData.Scan0, ImageData.Length);
                 BMP.UnlockBits(BmpData);
                 ImageData = null;
                 BmpData = null;
 
-                if (ExtArea != null && ExtArea.KeyColor.ToInt() != 0)
+                if (ExtArea is not null && ExtArea.KeyColor.ToInt() != 0)
                     BMP.MakeTransparent(ExtArea.KeyColor.ToColor());
 
                 #region Flip Image
@@ -5879,7 +5885,7 @@ namespace TGASharpLib
         #region Explicit
         public static explicit operator Bitmap(TGA tga)
         {
-            return tga.ToBitmap();
+            return tga.ToBitmap() ?? new Bitmap(1,1);
         }
 
         public static explicit operator TGA(Bitmap bmp)
@@ -5894,9 +5900,9 @@ namespace TGASharpLib
         /// </summary>
         /// <param name="ForceUseAlpha">Force use alpha channel.</param>
         /// <returns>Bitmap or null.</returns>
-        public Bitmap GetPostageStampImage(bool ForceUseAlpha = false)
+        public Bitmap? GetPostageStampImage(bool ForceUseAlpha = false)
         {
-            if (ExtArea == null || ExtArea.PostageStampImage == null || ExtArea.PostageStampImage.Data == null ||
+            if (ExtArea is null || ExtArea.PostageStampImage is null || ExtArea.PostageStampImage.Data == null ||
                 ExtArea.PostageStampImage.Width <= 0 || ExtArea.PostageStampImage.Height <= 0)
                 return null;
 
@@ -5910,14 +5916,14 @@ namespace TGASharpLib
         {
             if (Header.ImageType == TgaImageType.NoImageData)
             {
-                if (ExtArea != null)
+                if (ExtArea is not null)
                     ExtArea.PostageStampImage = null;
                 return;
             }
 
             ToNewFormat();
-            if (ExtArea.PostageStampImage == null)
-                ExtArea.PostageStampImage = new TgaPostageStampImage();
+            if ((ExtArea ?? new TgaExtArea()).PostageStampImage is null)
+                (ExtArea ?? new TgaExtArea()).PostageStampImage = new TgaPostageStampImage();
 
             int PS_Width = Header.ImageSpec.ImageWidth;
             int PS_Height = Header.ImageSpec.ImageHeight;
@@ -5930,7 +5936,8 @@ namespace TGASharpLib
             }
             PS_Width = Math.Max(PS_Width, 4);
             PS_Height = Math.Max(PS_Height, 4);
-
+            if (ExtArea is null) throw new Exception();
+            if (ExtArea.PostageStampImage is null) throw new Exception();
             ExtArea.PostageStampImage.Width = (byte)PS_Width;
             ExtArea.PostageStampImage.Height = (byte)PS_Height;
 
@@ -5947,7 +5954,7 @@ namespace TGASharpLib
 
                 for (int x = 0; x < PS_Width; x++)
                 {
-                    Buffer.BlockCopy(ImageOrColorMapArea.ImageData, Y_Offset + (int)(x * WidthCoef) * BytesPerPixel,
+                    Buffer.BlockCopy(ImageOrColorMapArea.ImageData ?? new byte[] { }, Y_Offset + (int)(x * WidthCoef) * BytesPerPixel,
                         ExtArea.PostageStampImage.Data, y_Offset + x * BytesPerPixel, BytesPerPixel);
                 }
             }
@@ -5955,7 +5962,7 @@ namespace TGASharpLib
 
         public void DeletePostageStampImage()
         {
-            if (ExtArea != null)
+            if (ExtArea is not null)
                 ExtArea.PostageStampImage = null;
         }
         #endregion

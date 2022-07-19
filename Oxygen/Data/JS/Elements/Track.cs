@@ -47,7 +47,7 @@ namespace Oxygen.Data.JS.Elements
                 altControl.Value = value;
             }
         }
-        public string innerText { get
+        public string? innerText { get
             {
                 return control.Text;
             } set
@@ -59,7 +59,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-top", 0); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
                 attributes.SetOrAdd("margin-top", value.ToString());
             }
         }
@@ -67,7 +68,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-bottom", 6); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
                 attributes.SetOrAdd("margin-bottom", value.ToString());
             }
         }
@@ -79,13 +81,15 @@ namespace Oxygen.Data.JS.Elements
                 {
                     int oldTop = control.Top;
                     int oldAltTop = altControl.Top;
-                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top - marginTop, marginTop + control.Height + marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top - marginTop, marginTop + control.Height + marginBottom);
                     control.Top = oldTop;
                     altControl.Top = oldAltTop;
                 }
                 else
                 {
-                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, -marginTop - control.Height - marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, -marginTop - control.Height - marginBottom);
                 }
                 control.Visible = value;
                 attributes.SetOrAdd("visible", value.ToString());
@@ -102,7 +106,7 @@ namespace Oxygen.Data.JS.Elements
 
         private System.Windows.Forms.Label control;
         private TrackBar altControl;
-        private Panel parentPanel;
+        private Panel? parentPanel;
 
         internal Track(XElement element)
         {
@@ -136,7 +140,7 @@ namespace Oxygen.Data.JS.Elements
             ControlHelper.AddGenericEvents(control, attributes, this);
             ControlHelper.AddGenericEvents(altControl, attributes, this);
 
-                altControl.ValueChanged += (object sender, EventArgs e) =>
+                altControl.ValueChanged += (object? sender, EventArgs e) =>
                 {
                     value = altControl.Value;
                     if (attributes.ContainsKey("onchange"))
@@ -159,7 +163,7 @@ namespace Oxygen.Data.JS.Elements
 
             panel.Controls.Add(altControl);
 
-            panel.Resize += (object sender, EventArgs e) =>
+            panel.Resize += (object? sender, EventArgs e) =>
             {
                 altControl.Size = new Size(panel.Width - control.Size.Width - 72, 24);
             };

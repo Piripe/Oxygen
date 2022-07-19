@@ -35,7 +35,7 @@ namespace Oxygen.Modules
                     }
                     else
                     {
-                        return result.ToString();
+                        return result.ToString()??"";
                     }
                 }
                 catch (Exception ex)
@@ -74,22 +74,25 @@ namespace Oxygen.Modules
                     if (bool.Parse(JSEngine.Evaluate(ifSearch.Groups[2].Value).ToString()))
                     {
                         // If it's true, detect for the next else/end and process between the current condition position and the else/end position
-                        Match detectedElse = DetectIf("ELSEIFENDIF",toDetect);
+                        Match? detectedElse = DetectIf("ELSEIFENDIF",toDetect);
 
-                        result += ProcessIf(toDetect.Substring(0, detectedElse.Index), file, JSEngine);
+                            if (detectedElse != null)
+                            {
+                                result += ProcessIf(toDetect.Substring(0, detectedElse.Index), file, JSEngine);
 
-                        if (detectedElse.Groups[1].Value.StartsWith("ENDIF"))
-                        {
-                            // If detectedElse is an end, process the string after the end
-                            result += ProcessIf(toDetect.Remove(0, detectedElse.Index + detectedElse.Length), file, JSEngine);
-                        }
-                        else
-                        {
-                            // If detectedElse is an else, detect the next end and process after it
-                            Match detectedEnd = DetectIf("ENDIF", toDetect);
-
-                            result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), file, JSEngine);
-                        }
+                                if (detectedElse.Groups[1].Value.StartsWith("ENDIF"))
+                                {
+                                    // If detectedElse is an end, process the string after the end
+                                    result += ProcessIf(toDetect.Remove(0, detectedElse.Index + detectedElse.Length), file, JSEngine);
+                                }
+                                else
+                                {
+                                    // If detectedElse is an else, detect the next end and process after it
+                                    Match? detectedEnd = DetectIf("ENDIF", toDetect);
+                                    if (detectedEnd != null)
+                                    result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), file, JSEngine);
+                                }
+                            }
 
                     }
                     else
@@ -97,8 +100,9 @@ namespace Oxygen.Modules
                         while (true)
                         {
                             // If it's false, detect the next else/elseif/end
-                            Match detectedElse = DetectIf("ELSEIFENDIF", toDetect);
-
+                            Match? detectedElse = DetectIf("ELSEIFENDIF", toDetect);
+                                if (detectedElse == null)
+                                    break;
                             if (detectedElse.Groups[1].Value.StartsWith("ELSEIF"))
                             {
                                 // If it's an elseif, evaluate its condition
@@ -108,34 +112,37 @@ namespace Oxygen.Modules
                                 {
                                     // If it's true, detect for the next else/end and process between the current condition position and the else/end position
                                     detectedElse = DetectIf("ELSEIFENDIF", toDetect);
+                                        if (detectedElse != null)
+                                        {
+                                            result += ProcessIf(toDetect.Substring(0, detectedElse.Index), file, JSEngine);
 
-                                    result += ProcessIf(toDetect.Substring(0, detectedElse.Index), file, JSEngine);
-
-                                    if (detectedElse.Groups[1].Value.StartsWith("ENDIF"))
-                                    {
-                                        // If detectedElse is an end, process the string after the end
-                                        result += ProcessIf(toDetect.Remove(0, detectedElse.Index + detectedElse.Length), file, JSEngine);
-                                    }
-                                    else
-                                    {
-                                        // If detectedElse is an else, detect the next end and process after it
-                                        Match detectedEnd = DetectIf("ENDIF", toDetect);
-
-                                        result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), file, JSEngine);
-                                    }
-                                    // Exit the while
-                                    break;
+                                            if (detectedElse.Groups[1].Value.StartsWith("ENDIF"))
+                                            {
+                                                // If detectedElse is an end, process the string after the end
+                                                result += ProcessIf(toDetect.Remove(0, detectedElse.Index + detectedElse.Length), file, JSEngine);
+                                            }
+                                            else
+                                            {
+                                                // If detectedElse is an else, detect the next end and process after it
+                                                Match? detectedEnd = DetectIf("ENDIF", toDetect);
+                                                if (detectedEnd!=null)
+                                                result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), file, JSEngine);
+                                            }
+                                        }
+                                            // Exit the while
+                                            break;
                                 }
                             }
                             else if (detectedElse.Groups[1].Value.StartsWith("ELSE"))
                             {
                                 // If it's an else, detect the next end and process between the else and the end
-                                Match detectedEnd = DetectIf("ENDIF", toDetect);
+                                Match? detectedEnd = DetectIf("ENDIF", toDetect);
+                                    if (detectedEnd != null)
+                                    {
+                                        result += ProcessIf(toDetect.Substring(detectedElse.Index + detectedElse.Length, detectedEnd.Index - detectedElse.Index - detectedElse.Length), file, JSEngine);
 
-                                result += ProcessIf(toDetect.Substring(detectedElse.Index+detectedElse.Length, detectedEnd.Index - detectedElse.Index-detectedElse.Length), file, JSEngine);
-
-                                result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), file, JSEngine);
-
+                                        result += ProcessIf(toDetect.Remove(0, detectedEnd.Index + detectedEnd.Length), file, JSEngine);
+                                    }
                                 // Exit the while
                                 break;
                             }
@@ -180,7 +187,7 @@ namespace Oxygen.Modules
         /// <param name="findWhat"></param>
         /// <param name="s"></param>
         /// <returns></returns>
-        private static Match DetectIf(string findWhat, string s)
+        private static Match? DetectIf(string findWhat, string s)
         {
             // Detect all IF/ELSEIF/ELSE/ENDIF of the string
             MatchCollection ifSearches = Regex.Matches(s, @"(?<!\\)#(IF\s*\(([^\)]*)\)|ELSEIF\s*\(([^\)]*)\)|ELSE|ENDIF)");

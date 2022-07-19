@@ -80,7 +80,7 @@ namespace Oxygen.Data.JS.Elements
                 altControl.SelectedIndex = children.FindIndex((x) => ((Option)x).value == value);
             }
         }
-        public string innerText { get
+        public string? innerText { get
             {
                 return control.Text;
             } set
@@ -92,7 +92,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-top", 0); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
                 attributes.SetOrAdd("margin-top", value.ToString());
             }
         }
@@ -100,7 +101,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-bottom", 6); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
                 attributes.SetOrAdd("margin-bottom", value.ToString());
             }
         }
@@ -116,7 +118,8 @@ namespace Oxygen.Data.JS.Elements
                     int oldDelTop = delControl.Top;
                     int oldUpTop = upControl.Top;
                     int oldDownTop = downControl.Top;
-                    ControlHelper.ShiftControlsUnder(parentPanel, altControl.Top - marginTop, marginTop + (editable ? height : 29) + marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, altControl.Top - marginTop, marginTop + (editable ? height : 29) + marginBottom);
                     control.Top = oldTop;
                     altControl.Top = oldAltTop;
                     addControl.Top = oldAddTop;
@@ -131,7 +134,8 @@ namespace Oxygen.Data.JS.Elements
                     int oldDelTop = delControl.Top;
                     int oldUpTop = upControl.Top;
                     int oldDownTop = downControl.Top;
-                    ControlHelper.ShiftControlsUnder(parentPanel, altControl.Top + altControl.Height, -marginTop - (editable ? height : 29) - marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, altControl.Top + altControl.Height, -marginTop - (editable ? height : 29) - marginBottom);
                     control.Top = oldTop;
                     addControl.Top = oldAddTop;
                     delControl.Top = oldDelTop;
@@ -166,7 +170,7 @@ namespace Oxygen.Data.JS.Elements
         private Button delControl;
         private Button upControl;
         private Button downControl;
-        private Panel parentPanel;
+        private Panel? parentPanel;
         private int oldHeight;
         private int lastSelect = -1;
 
@@ -252,7 +256,7 @@ namespace Oxygen.Data.JS.Elements
             foreach (Option option in children)
             {
                 altControl.Items.Add(option.ToString());
-                option.innerTextChanged += (object sender, EventArgs e) =>
+                option.innerTextChanged += (object? sender, EventArgs e) =>
                 {
                     altControl.Items[children.IndexOf(option)] = sender;
                 };
@@ -263,7 +267,7 @@ namespace Oxygen.Data.JS.Elements
             ControlHelper.AddGenericEvents(control, attributes, this);
             ControlHelper.AddGenericEvents(altControl, attributes, this);
 
-            altControl.SelectedIndexChanged += (object sender, EventArgs e) =>
+            altControl.SelectedIndexChanged += (object? sender, EventArgs e) =>
             {
                 if (altControl.SelectedIndex >= 0)
                 {
@@ -279,7 +283,7 @@ namespace Oxygen.Data.JS.Elements
                 }
             };
 
-            altControl.TextChanged += (object sender, EventArgs e) =>
+            altControl.TextChanged += (object? sender, EventArgs e) =>
             {
                 if (editable)
                 {
@@ -297,13 +301,13 @@ namespace Oxygen.Data.JS.Elements
                     if (altControl.SelectedIndex == -1 & lastSelect != -1)
                     {
                         altControl.Text = altControl.Items[lastSelect].ToString();
-                        altControl.SelectionStart = altControl.Text.Length;
+                        altControl.SelectionStart = (altControl.Text??"").Length;
                         altControl.SelectionLength = 0;
                     }
                 }
             };
 
-            control.Resize += (object sender, EventArgs e) =>
+            control.Resize += (object? sender, EventArgs e) =>
             {
                     if (parentPanel != null)
                 {
@@ -311,7 +315,7 @@ namespace Oxygen.Data.JS.Elements
                     altControl.Size = new Size(parentPanel.Width - control.Size.Width - 72, oldHeight);
                 }
             };
-            altControl.Resize += (object sender, EventArgs e) =>
+            altControl.Resize += (object? sender, EventArgs e) =>
             {
                 if (oldHeight != altControl.Height)
                 {
@@ -324,19 +328,19 @@ namespace Oxygen.Data.JS.Elements
                 }
             };
 
-            addControl.Click += (object sender, EventArgs e) =>
+            addControl.Click += (object? sender, EventArgs e) =>
             {
                 children.Add(new Option(children.Count.ToString(), defaultValue));
                 altControl.Items.Add(children.Last().innerText);
             };
-            delControl.Click += (object sender, EventArgs e) =>
+            delControl.Click += (object? sender, EventArgs e) =>
             {
                 children.RemoveAt(altControl.SelectedIndex);
                 altControl.Items.RemoveAt(altControl.SelectedIndex);
                 altControl.SelectedIndex = Math.Min(altControl.Items.Count - 1, lastSelect);
                 lastSelect = altControl.SelectedIndex;
             };
-            upControl.Click += (object sender, EventArgs e) =>
+            upControl.Click += (object? sender, EventArgs e) =>
             {
                 if (altControl.SelectedIndex > 0)
                 {
@@ -352,7 +356,7 @@ namespace Oxygen.Data.JS.Elements
                     lastSelect = altControl.SelectedIndex;
                 }
             };
-            downControl.Click += (object sender, EventArgs e) =>
+            downControl.Click += (object? sender, EventArgs e) =>
             {
                 if (altControl.SelectedIndex < altControl.Items.Count - 1)
                 {
@@ -371,7 +375,7 @@ namespace Oxygen.Data.JS.Elements
 
 
 
-            innerText = (children.Count > 0 ? element.Value.Remove(element.Value.IndexOf(children[0].innerText)) : element.Value).Trim();
+            innerText = (children.Count > 0 ? element.Value.Remove(element.Value.IndexOf(children[0].innerText??"")) : element.Value).Trim();
         }
         public int AddControl(Panel panel,int y)
         {
@@ -403,7 +407,7 @@ namespace Oxygen.Data.JS.Elements
             }
             oldHeight = altControl.Height;
 
-            panel.Resize += (object sender, EventArgs e) =>
+            panel.Resize += (object? sender, EventArgs e) =>
             {
                 control.MaximumSize = new Size((int)Math.Min(panel.Width * 0.75, panel.Width - 242), height);
                 altControl.Location = new Point(Math.Min(panel.Width - Math.Max(194, panel.Width - control.Size.Width - 72) - 24, control.Size.Width + 48), altControl.Top);

@@ -34,7 +34,7 @@ namespace Oxygen.Data.JS.Elements
                 altControl.BackColor = value;
             }
         }
-        public string innerText { get
+        public string? innerText { get
             {
                 return control.Text;
             } set
@@ -46,7 +46,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-top", 0); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top, value - marginTop);
                 attributes.SetOrAdd("margin-top", value.ToString());
             }
         }
@@ -54,7 +55,8 @@ namespace Oxygen.Data.JS.Elements
         {
             get => attributes.GetOrDefaultInt("margin-bottom", 6); set
             {
-                ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
+                if (parentPanel != null)
+                    ControlHelper.ShiftControlsUnder(parentPanel, control.Top + 1, value - marginTop);
                 attributes.SetOrAdd("margin-bottom", value.ToString());
             }
         }
@@ -66,13 +68,15 @@ namespace Oxygen.Data.JS.Elements
                 {
                     int oldTop = control.Top;
                     int oldAltTop = altControl.Top;
-                    ControlHelper.ShiftControlsUnder(parentPanel, altControl.Top - marginTop, marginTop + control.Height + marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, altControl.Top - marginTop, marginTop + control.Height + marginBottom);
                     control.Top = oldTop;
                     altControl.Top = oldAltTop;
                 }
                 else
                 {
-                    ControlHelper.ShiftControlsUnder(parentPanel, altControl.Top + 1, -marginTop - control.Height - marginBottom);
+                    if (parentPanel != null)
+                        ControlHelper.ShiftControlsUnder(parentPanel, altControl.Top + 1, -marginTop - control.Height - marginBottom);
                 }
                 control.Visible = value;
                 altControl.Visible = value;
@@ -89,7 +93,7 @@ namespace Oxygen.Data.JS.Elements
         }
 
         private System.Windows.Forms.Label control;
-        private Panel parentPanel;
+        private Panel? parentPanel;
         private Button altControl;
 
         internal Color(XElement element)
@@ -120,7 +124,7 @@ namespace Oxygen.Data.JS.Elements
             ControlHelper.AddGenericEvents(control, attributes, this);
             ControlHelper.AddGenericEvents(altControl, attributes, this);
 
-            altControl.Click += (object sender, EventArgs e) =>
+            altControl.Click += (object? sender, EventArgs e) =>
             {
                 ColorDialog dialog = new ColorDialog();
                 dialog.Color = value;

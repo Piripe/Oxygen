@@ -23,10 +23,13 @@ namespace Oxygen.Modules
                     new XElement("vars")
                 )
             );
-            XElement vars = doc.Root.Element("vars");
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            XElement vars = doc.Root.Element("vars")??new XElement("","");
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
             // Add every vars in the <vars> element
-            foreach (string var in Global.SkinData.Vars)
+            if (Global.JSEngine != null)
+            foreach (string var in (Global.SkinData??new Data.SkinData()).Vars)
             {
                 Jint.Native.JsValue jsValue = Global.JSEngine.Evaluate(var);
                 if (jsValue.IsArray())
@@ -74,47 +77,50 @@ namespace Oxygen.Modules
         internal static void Load(Forms.ProgressBar progress, string path)
         {
             XDocument doc = XDocument.Load(path);
-
-            Global.SkinConfig.skinSave = path;
-            Global.SkinConfig.skinPath = doc.Root.Element("path").Value;
-            Global.SkinConfig.SkinOrigin = (Data.SkinOrigin)int.Parse(doc.Root.Element("origin").Value);
-
-            Dictionary<string, object> vars = new Dictionary<string, object>();
-
-            foreach (XElement var in doc.Root.Element("vars").Elements())
+            if (doc.Root != null)
             {
-                switch (var.Attribute("type").Value)
-                {
-                    case "array":
-                        List<string> items = new List<string>();
-                        foreach (XElement item in var.Elements())
-                        {
-                            items.Add(item.Value);
-                        }
-                        vars.Add(var.Name.LocalName, items.ToArray());
-                        break;
-                    case "color":
-                        if (int.TryParse(var.Value,out int resultColor)) vars.Add(var.Name.LocalName, Color.FromArgb(resultColor));
-                        break;
-                    case "double":
-                        if (double.TryParse(var.Value, out double resultDouble)) vars.Add(var.Name.LocalName, resultDouble);
-                        break;
-                    case "bool":
-                        if (bool.TryParse(var.Value, out bool resultBool)) vars.Add(var.Name.LocalName, resultBool);
-                        break;
-                    case "any":
-                        vars.Add(var.Name.LocalName, var.Value);
-                        break;
-                }
-            }
 
-            GenerateProject(progress, vars);
+                Global.SkinConfig.skinSave = path;
+                Global.SkinConfig.skinPath = (doc.Root.Element("path") ?? new XElement("", "")).Value;
+                Global.SkinConfig.SkinOrigin = (Data.SkinOrigin)int.Parse((doc.Root.Element("origin") ?? new XElement("", "")).Value);
+
+                Dictionary<string, object> vars = new Dictionary<string, object>();
+
+                foreach (XElement var in (doc.Root.Element("vars") ?? new XElement("", "")).Elements())
+                {
+                    switch ((var.Attribute("type") ?? new XAttribute("", "")).Value)
+                    {
+                        case "array":
+                            List<string> items = new List<string>();
+                            foreach (XElement item in var.Elements())
+                            {
+                                items.Add(item.Value);
+                            }
+                            vars.Add(var.Name.LocalName, items.ToArray());
+                            break;
+                        case "color":
+                            if (int.TryParse(var.Value, out int resultColor)) vars.Add(var.Name.LocalName, Color.FromArgb(resultColor));
+                            break;
+                        case "double":
+                            if (double.TryParse(var.Value, out double resultDouble)) vars.Add(var.Name.LocalName, resultDouble);
+                            break;
+                        case "bool":
+                            if (bool.TryParse(var.Value, out bool resultBool)) vars.Add(var.Name.LocalName, resultBool);
+                            break;
+                        case "any":
+                            vars.Add(var.Name.LocalName, var.Value);
+                            break;
+                    }
+                }
+
+                GenerateProject(progress, vars);
+            }
         }
-        internal static void GenerateProject(Forms.ProgressBar progress,Dictionary<string,object> vars = null)
+        internal static void GenerateProject(Forms.ProgressBar progress,Dictionary<string,object>? vars = null)
         {
             TaskScheduler context = TaskScheduler.FromCurrentSynchronizationContext();
 
-            Task.Run(() => {
+            Task.Run(async () => {
 
                 string rootWorkingPath = Path.Combine(Path.GetTempPath(), "Oxygen");
                 
@@ -152,7 +158,7 @@ namespace Oxygen.Modules
 
                 if (Global.SkinConfig.SkinOrigin == Data.SkinOrigin.Local)
                 {
-                    Task.Factory.StartNew(() => {
+                    await Task.Factory.StartNew(() => {
                         progress.workingLabel.Text = "Extracting skin...";
                         if (progress.Cancelled) { progress.DialogResult = DialogResult.Cancel; }
                     }, CancellationToken.None, TaskCreationOptions.None, context);
@@ -171,13 +177,13 @@ namespace Oxygen.Modules
                     }
                     else
                     {
-                        System.IO.Compression.ZipFile.ExtractToDirectory(Global.SkinConfig.skinPath, Path.Combine(rootWorkingPath, "skin"));
+                        System.IO.Compression.ZipFile.ExtractToDirectory(Global.SkinConfig.skinPath??"", Path.Combine(rootWorkingPath, "skin"));
                         checkIfValidSkin();
                     }
                 }
                 else
                 {
-                    Task.Factory.StartNew(() => {
+                    await Task.Factory.StartNew(() => {
                         progress.workingLabel.Text = "Downloading skin...";
                         if (progress.Cancelled) { progress.DialogResult = DialogResult.Cancel; }
                     }, CancellationToken.None, TaskCreationOptions.None, context);
@@ -187,8 +193,12 @@ namespace Oxygen.Modules
                         if (Directory.Exists(Path.Combine(rootWorkingPath, "skin"))) Directory.Delete(Path.Combine(rootWorkingPath, "skin"), true);
                     }
                     catch { }
-                        new WebClient().DownloadFile(Global.SkinConfig.skinPath, Path.Combine(rootWorkingPath, "skin.zip"));
-                    Task.Factory.StartNew(() => {
+                    HttpClient http = new HttpClient();
+                    Stream stream = await http.GetStreamAsync(Global.SkinConfig.skinPath??"");
+                    FileStream fs = File.OpenWrite(Path.Combine(rootWorkingPath, "skin.zip"));
+                    await stream.CopyToAsync(fs);
+                    fs.Close();
+                    await Task.Factory.StartNew(() => {
                         progress.workingLabel.Text = "Extracting skin...";
                         progress.progressBar1.Value = 20;
                         if (progress.Cancelled) { progress.DialogResult = DialogResult.Cancel; }
@@ -201,7 +211,7 @@ namespace Oxygen.Modules
 
                 Data.SkinData SkinData = new Data.SkinData();
 
-                Task.Factory.StartNew(() => {
+                await Task.Factory.StartNew(() => {
                     progress.workingLabel.Text = "Loading JS Engine...";
                     progress.progressBar1.Value = 25;
                     if (progress.Cancelled) { progress.DialogResult = DialogResult.Cancel; }
@@ -234,7 +244,7 @@ namespace Oxygen.Modules
                 }));
 
 
-                Task.Factory.StartNew(() => {
+                await Task.Factory.StartNew(() => {
                     progress.workingLabel.Text = "Loading Skin Infos...";
                     progress.progressBar1.Value = 25;
                     if (progress.Cancelled) { progress.DialogResult = System.Windows.Forms.DialogResult.Cancel; }
@@ -244,6 +254,7 @@ namespace Oxygen.Modules
                 if (File.Exists(Path.Combine(rootWorkingPath, "skin/infos.xml")))
                 {
                     XDocument settingsDocument = XDocument.Load(Path.Combine(rootWorkingPath, "skin/infos.xml"));
+                    if (settingsDocument.Root != null)
                     foreach (XElement info in settingsDocument.Root.Elements())
                     {
                         switch (info.Name.ToString())
@@ -261,7 +272,7 @@ namespace Oxygen.Modules
                     }
                 }
 
-                Task.Factory.StartNew(() => {
+                await Task.Factory.StartNew(() => {
                     progress.workingLabel.Text = "Loading Skin Vars...";
                     progress.progressBar1.Value = 50;
                     if (progress.Cancelled) { progress.DialogResult = DialogResult.Cancel; }
@@ -271,6 +282,7 @@ namespace Oxygen.Modules
                 if (File.Exists(Path.Combine(rootWorkingPath, "skin/vars.xml")))
                 {
                     XDocument varsDocument = XDocument.Load(Path.Combine(rootWorkingPath, "skin/vars.xml"));
+                    if (varsDocument.Root!=null)
                     foreach (XElement var in varsDocument.Root.Elements())
                     {
                         SkinData.Vars.Add(var.Value);
@@ -284,7 +296,7 @@ namespace Oxygen.Modules
                         JSEngine.Execute(File.ReadAllText(Path.Combine(rootWorkingPath, "skin/oxygen/oxygen.js")));
                     }
                     catch (Exception ex) {
-                        ErrorManager.Error(ex.Message, "oxygen/oxygen.js", string.Join(":", ex.InnerException.StackTrace.Split(':')[^2..^0]));
+                        ErrorManager.Error(ex.Message, "oxygen/oxygen.js", string.Join(":", ((ex.InnerException ?? new Exception()).StackTrace ?? "?:?:?").Split(':')[^2..^0]));
                     }
                 }
 
@@ -329,14 +341,14 @@ namespace Oxygen.Modules
                     }
                 }
 
-                Task.Factory.StartNew(() => {
+                await Task.Factory.StartNew(() => {
                     progress.workingLabel.Text = "Loading Skin Settings...";
                     progress.progressBar1.Value = 75;
                     if (progress.Cancelled) { progress.DialogResult = DialogResult.Cancel; }
                 }, CancellationToken.None, TaskCreationOptions.None, context);
                 progress.drawCLIProgressbar("Loading Skin Settings...",75);
 
-                Data.JS.Document Document = null;
+                Data.JS.Document? Document = null;
 
                 if (File.Exists(Path.Combine(rootWorkingPath, "skin/settings.xml")))
                 {
@@ -344,6 +356,7 @@ namespace Oxygen.Modules
                     {
                       XDocument settingsDocument = XDocument.Load(Path.Combine(rootWorkingPath, "skin/settings.xml"));
 
+                        if (settingsDocument.Root != null)
                       Document = new Data.JS.Document(settingsDocument.Root, JSEngine);
                     }
                     catch (Exception ex) {
@@ -351,7 +364,7 @@ namespace Oxygen.Modules
                     }
                 }
 
-                Task.Factory.StartNew(() => {
+                await Task.Factory.StartNew(() => {
                     Global.SkinData = SkinData;
                     Global.JSEngine = JSEngine;
                     Global.Document = Document;

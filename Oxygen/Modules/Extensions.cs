@@ -10,11 +10,12 @@ namespace Oxygen.Modules
     {
         #region Dictionary
 
-        internal static U GetOrDefault<T, U>(this Dictionary<T, U> dict, T key, U defaultValue)
+        internal static U GetOrDefault<T, U>(this Dictionary<T, U> dict, T key, U defaultValue) where T : notnull
         {
-            return dict.ContainsKey(key) ? dict[key] : defaultValue;
+                return dict.ContainsKey(key) ? dict[key] : defaultValue;
+            
         }
-        internal static int GetOrDefaultInt<T>(this Dictionary<T, string> dict, T key, int defaultValue)
+        internal static int GetOrDefaultInt<T>(this Dictionary<T, string> dict, T key, int defaultValue) where T : notnull
         {
             string value = dict.ContainsKey(key) ? dict[key] : defaultValue.ToString();
             if (int.TryParse(value, out int result))
@@ -23,7 +24,7 @@ namespace Oxygen.Modules
             }
             return defaultValue;
         }
-        internal static bool GetOrDefaultBool<T>(this Dictionary<T, string> dict, T key, bool defaultValue)
+        internal static bool GetOrDefaultBool<T>(this Dictionary<T, string> dict, T key, bool defaultValue) where T : notnull
         {
             string value = dict.ContainsKey(key) ? dict[key] : defaultValue.ToString();
             if (bool.TryParse(value, out bool result))
@@ -32,7 +33,7 @@ namespace Oxygen.Modules
             }
             return defaultValue;
         }
-        internal static void SetOrAdd<T, U>(this Dictionary<T, U> dict, T key, U value)
+        internal static void SetOrAdd<T, U>(this Dictionary<T, U> dict, T key, U value) where T : notnull
         {
             if (dict.ContainsKey(key))
             {

@@ -58,7 +58,7 @@ namespace Oxygen.Forms
                 };
                 lines.Add(panel);
 
-                panel.Paint += (object sender, PaintEventArgs e) => {
+                panel.Paint += (object? sender, PaintEventArgs e) => {
                     int left = panel.Width - 26;
                     if (line != "")
                     {
@@ -77,7 +77,7 @@ namespace Oxygen.Forms
                         this.ScrollControlIntoView(panel);
                     }
                 };
-                panel.Resize += (object sender, EventArgs e) => {
+                panel.Resize += (object? sender, EventArgs e) => {
                     panel.Invalidate();
                 };
                 panel.Controls.Add(messageLabel);

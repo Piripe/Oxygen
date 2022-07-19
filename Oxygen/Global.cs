@@ -11,10 +11,10 @@ namespace Oxygen
     {
         public const string Version = "alpha 0.1";
         internal static Data.SkinConfig SkinConfig = new Data.SkinConfig();
-        internal static Data.SkinData SkinData;
-        internal static Engine JSEngine;
-        internal static Data.JS.Document Document;
-        internal static Forms.Editor Editor;
+        internal static Data.SkinData? SkinData;
+        internal static Engine? JSEngine;
+        internal static Data.JS.Document? Document;
+        internal static Forms.Editor? Editor;
         internal static Forms.ErrorConsole ErrorConsole = new Forms.ErrorConsole();
 
         internal static bool DevMode = false;

@@ -14,7 +14,7 @@ namespace Oxygen.Data.JS
         public List<IElement> children { get; }
         public Dictionary<string, string> attributes { get; }
         public string id { get => attributes.GetOrDefault("id", ""); set => attributes.SetOrAdd("id", value); }
-        public string innerText { get; set; }
+        public string? innerText { get; set; }
 
         internal Document(XElement element, Jint.Engine JSEngine)
         {
@@ -56,7 +56,7 @@ namespace Oxygen.Data.JS
                             }
                             catch (Exception ex)
                             {
-                                ErrorManager.Error(ex.Message, srcFile.Value, string.Join(":", ex.InnerException.StackTrace.Split(':')[^2..^0]));
+                                ErrorManager.Error(ex.Message, srcFile.Value, string.Join(":", ((ex.InnerException??new Exception()).StackTrace??"?:?:?").Split(':')[^2..^0]));
                             }
                         }
                         break;
@@ -65,9 +65,9 @@ namespace Oxygen.Data.JS
 
         }
 
-        public IElement getElementById(string id)
+        public IElement? getElementById(string id)
         {
-            IElement getElementByIdIn(IEnumerable<IElement> elements)
+            IElement? getElementByIdIn(IEnumerable<IElement> elements)
             {
                 foreach (IElement x in elements)
                 {
@@ -81,7 +81,7 @@ namespace Oxygen.Data.JS
                         {
                             if (x.children.Count > 0)
                             {
-                                IElement result = getElementByIdIn(x.children);
+                                IElement? result = getElementByIdIn(x.children);
                                 if ( result != null)
                                 {
                                     return result;

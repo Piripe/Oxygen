@@ -16,7 +16,7 @@ namespace Oxygen.Forms
         Action<ProgressBar> action;
 
         int CursorTop = 0;
-        TaskCompletionSource<bool> tsc = null;
+        TaskCompletionSource<bool>? tsc = null;
 
         private DialogResult CLIResult_;
         public DialogResult CLIResult

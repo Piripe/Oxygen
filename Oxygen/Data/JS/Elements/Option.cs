@@ -22,8 +22,8 @@ namespace Oxygen.Data.JS.Elements
                 attributes.SetOrAdd("value", value.ToString());
             }
         }
-        private string innerText_;
-        public string innerText { get => innerText_; set
+        private string? innerText_;
+        public string? innerText { get => innerText_; set
             {
                 innerText_ = value;
                 if (innerTextChanged != null)
@@ -31,7 +31,7 @@ namespace Oxygen.Data.JS.Elements
                     innerTextChanged.Invoke(this, EventArgs.Empty);
                 }
             } }
-        internal event EventHandler innerTextChanged;
+        internal event EventHandler? innerTextChanged;
 
         internal Option(XElement element)
         {
@@ -40,7 +40,7 @@ namespace Oxygen.Data.JS.Elements
             {
                 attributes.Add(attr.Name.ToString(), attr.Value);
             }
-            if (!attributes.ContainsKey("value")) attributes.Add("value", element.Parent.Elements().ToList().IndexOf(element).ToString());
+            if (!attributes.ContainsKey("value")) attributes.Add("value", (element.Parent??new XElement("","")).Elements().ToList().IndexOf(element).ToString());
             children = new List<IElement>();
 
             innerText = element.Value;
@@ -59,7 +59,7 @@ namespace Oxygen.Data.JS.Elements
         }
         public override string ToString()
         {
-            return innerText;
+            return innerText??id;
         }
     }
 }
