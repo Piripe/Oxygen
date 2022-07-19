@@ -267,6 +267,12 @@ namespace Oxygen.Data.JS.Elements
             ControlHelper.AddGenericEvents(control, attributes, this);
             ControlHelper.AddGenericEvents(altControl, attributes, this);
 
+            altControl.MouseWheel += (object? sender, MouseEventArgs e) => {
+                ((HandledMouseEventArgs)e).Handled = true;
+                if (parentPanel != null)
+                    parentPanel.VerticalScroll.Value = Math.Max(Math.Min(parentPanel.VerticalScroll.Value - e.Delta, parentPanel.VerticalScroll.Maximum), parentPanel.VerticalScroll.Minimum);
+            };
+
             altControl.SelectedIndexChanged += (object? sender, EventArgs e) =>
             {
                 if (altControl.SelectedIndex >= 0)
