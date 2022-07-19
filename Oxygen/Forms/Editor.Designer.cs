@@ -144,7 +144,7 @@
             this.turnOnAutoReloadToolStripMenuItem,
             this.autoExportToolStripMenuItem});
             this.devModeToolStripMenuItem.Name = "devModeToolStripMenuItem";
-            this.devModeToolStripMenuItem.Size = new System.Drawing.Size(73, 19);
+            this.devModeToolStripMenuItem.Size = new System.Drawing.Size(73, 20);
             this.devModeToolStripMenuItem.Text = "Dev Mode";
             this.devModeToolStripMenuItem.Visible = false;
             // 
@@ -207,13 +207,13 @@
             // 
             this.categoriesListBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.categoriesListBox.Dock = System.Windows.Forms.DockStyle.Left;
-            this.categoriesListBox.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.categoriesListBox.Font = new System.Drawing.Font("Segoe UI Variable Display", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
             this.categoriesListBox.FormattingEnabled = true;
-            this.categoriesListBox.ItemHeight = 16;
+            this.categoriesListBox.ItemHeight = 19;
             this.categoriesListBox.Location = new System.Drawing.Point(0, 24);
             this.categoriesListBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.categoriesListBox.Name = "categoriesListBox";
-            this.categoriesListBox.Size = new System.Drawing.Size(136, 464);
+            this.categoriesListBox.Size = new System.Drawing.Size(181, 464);
             this.categoriesListBox.TabIndex = 1;
             this.categoriesListBox.SelectedIndexChanged += new System.EventHandler(this.categoriesListBox_SelectedIndexChanged);
             // 
@@ -224,11 +224,11 @@
             this.settingsPanel.AutoScrollMinSize = new System.Drawing.Size(-100, 0);
             this.settingsPanel.BackColor = System.Drawing.SystemColors.Control;
             this.settingsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.settingsPanel.Font = new System.Drawing.Font("Segoe UI Variable Display", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
-            this.settingsPanel.Location = new System.Drawing.Point(136, 24);
-            this.settingsPanel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.settingsPanel.Font = new System.Drawing.Font("Segoe UI Variable Display", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel);
+            this.settingsPanel.Location = new System.Drawing.Point(181, 24);
+            this.settingsPanel.Margin = new System.Windows.Forms.Padding(2);
             this.settingsPanel.Name = "settingsPanel";
-            this.settingsPanel.Size = new System.Drawing.Size(712, 464);
+            this.settingsPanel.Size = new System.Drawing.Size(667, 464);
             this.settingsPanel.TabIndex = 2;
             // 
             // linkPreviewLabel

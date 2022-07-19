@@ -17,7 +17,7 @@ namespace Oxygen.Data.JS.Elements
         public string id { get => attributes.GetOrDefault("id", ""); set => attributes.SetOrAdd("id", value); }
         public int fontSize
         {
-            get => attributes.GetOrDefaultInt("font-size", 12); set
+            get => attributes.GetOrDefaultInt("font-size", 14); set
             {
                 attributes.SetOrAdd("font-size", value.ToString());
                 control.Font = FontHelper.getFont(fontWeight, value,fontItalic,fontUnderline,fontStrikeout);
