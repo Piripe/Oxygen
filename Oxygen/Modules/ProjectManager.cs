@@ -242,6 +242,7 @@ namespace Oxygen.Modules
                 JSEngine.SetValue("multiplyHSL", new Func<Color, float, float, float, float, Color>((Color color, float h, float s, float l, float a) => {
                     return Libs.Color.HSLtoRGB((byte)Math.Floor(Math.Max(0, Math.Min(255, color.A * a))), (float)Math.Max(0, Math.Min(360, color.GetHue() / 360 * h)), (float)Math.Max(0, Math.Min(1, color.GetSaturation() * s)), (float)Math.Max(0, Math.Min(1, color.GetBrightness() * l)));
                 }));
+                JSEngine.SetValue("Gradient", typeof(Data.JS.Gradient));
 
 
                 await Task.Factory.StartNew(() => {

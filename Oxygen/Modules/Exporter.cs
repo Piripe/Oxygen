@@ -327,119 +327,47 @@ namespace Oxygen.Modules
                                         offset = new Point(offsetX, offsetY);
                                     }
 
+                                    Image resultImage;
 
                                     if (colorOrigin == null)
                                     {
-                                        // Draw directly the image if the color attribute is not specified
-                                        g.DrawImage(img, new Rectangle(offset, img.Size));
+                                        resultImage = img;
                                     }
-                                    else
-                                    {
-                                        // Get the color function
-                                        Match match = Regex.Match(colorOrigin.Value, @"(horizontal-gradient|vertical-gradient)\(([^)]+)\)");
-                                        if (match.Success)
+                                    else{
+                                        object colorTransform = JSEngine.Evaluate(colorOrigin.Value).ToObject();
+
+                                        if (colorTransform.GetType() == typeof(Color))
                                         {
-                                            string[] matchArgs = match.Groups[2].Value.Split(',');
-                                            switch (match.Groups[1].Value)
-                                            {
-                                                case "horizontal-gradient":
-                                                    // Draw the image with an horizontal gradient (Honestly I'm too tired to explain how it work)
-                                                    Bitmap gradientColors = new Bitmap(img.Width, 1);
-                                                    Graphics gradientG = Graphics.FromImage(gradientColors);
-                                                    if (matchArgs.Length == 4)
-                                                    {
-                                                        Point point1 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[0]).ToString()), 0);
-                                                        Point point2 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[1]).ToString()), 0);
-                                                        Color color1 = (Color)JSEngine.Evaluate(matchArgs[2]).ToObject();
-                                                        Color color2 = (Color)JSEngine.Evaluate(matchArgs[3]).ToObject();
-                                                        if (point1.X - point2.X == 0)
-                                                        {
-                                                            gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
-                                                            gradientG.FillRectangle(new SolidBrush(color2), point2.X, 0, img.Width - point2.X, 1);
-                                                        }
-                                                        else
-                                                        {
-                                                            LinearGradientBrush gradientBrush = new LinearGradientBrush(point1, point2, color1, color2);
-                                                            gradientBrush.GammaCorrection = true;
-                                                            gradientG.FillRectangle(gradientBrush, point1.X, 0, point2.X - point1.X + 1, 1);
-                                                            gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
-                                                            gradientG.FillRectangle(new SolidBrush(color2), point2.X + 1, 0, img.Width - point2.X, 1);
-                                                        }
-                                                    }
-                                                    else if (matchArgs.Length == 2)
-                                                    {
-                                                        LinearGradientBrush gradientBrush = new LinearGradientBrush(new Point(int.Parse(JSEngine.Evaluate(matchArgs[0]).ToString()), 0), new Point(int.Parse(JSEngine.Evaluate(matchArgs[1]).ToString()), 0), (Color)JSEngine.Evaluate(matchArgs[2]).ToObject(), (Color)JSEngine.Evaluate(matchArgs[3]).ToObject());
-                                                        gradientG.FillRectangle(gradientBrush, 0, 0, img.Width, 1);
-                                                    }
-                                                    for (int j = 0; j < img.Width; j++)
-                                                    {
-                                                        Color color = gradientColors.GetPixel(j, 0);
+                                            resultImage = new Bitmap(img.Width, img.Height);
+                                            ImageAttributes colorImageAttributes = new ImageAttributes();
 
-                                                        ImageAttributes imageAttributes = new ImageAttributes();
+                                            ColorMatrix colorColorMatrix = new ColorMatrix(getColorMatrix((Color)colorTransform));
 
-                                                        ColorMatrix colorMatrix = new ColorMatrix(getColorMatrix(color));
-
-                                                        imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                                                        g.DrawImage(img, new Rectangle(offset.X + j, offset.Y, 1, img.Height), j, 0, 1, img.Height, GraphicsUnit.Pixel, imageAttributes);
-                                                    }
-                                                    break;
-                                                case "vertical-gradient":
-                                                    // Draw the image with a vertical gradient (Works exactly like the horizontal gradient)
-                                                    gradientColors = new Bitmap(img.Height, 1);
-                                                    gradientG = Graphics.FromImage(gradientColors);
-                                                    if (matchArgs.Length == 2)
-                                                    {
-                                                        LinearGradientBrush gradientBrush = new LinearGradientBrush(new Point(0, 0), new Point(img.Height, 0), (Color)JSEngine.Evaluate(matchArgs[0]).ToObject(), (Color)JSEngine.Evaluate(matchArgs[1]).ToObject());
-                                                        gradientG.FillRectangle(gradientBrush, 0, 0, img.Height, 1);
-                                                    }
-                                                    else if (matchArgs.Length == 4)
-                                                    {
-                                                        Point point1 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[0]).ToString()), 0);
-                                                        Point point2 = new Point(int.Parse(JSEngine.Evaluate(matchArgs[1]).ToString()), 0);
-                                                        Color color1 = (Color)JSEngine.Evaluate(matchArgs[2]).ToObject();
-                                                        Color color2 = (Color)JSEngine.Evaluate(matchArgs[3]).ToObject();
-                                                        if (point1.X - point2.X == 0)
-                                                        {
-                                                            gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
-                                                            gradientG.FillRectangle(new SolidBrush(color2), point2.X, 0, img.Height - point2.X, 1);
-                                                        }
-                                                        else
-                                                        {
-                                                            LinearGradientBrush gradientBrush = new LinearGradientBrush(point1, point2, color1, color2);
-                                                            gradientBrush.GammaCorrection = true;
-                                                            gradientG.FillRectangle(gradientBrush, point1.X, 0, point2.X - point1.X + 1, 1);
-                                                            gradientG.FillRectangle(new SolidBrush(color1), 0, 0, point1.X, 1);
-                                                            gradientG.FillRectangle(new SolidBrush(color2), point2.X + 1, 0, img.Height - point2.X, 1);
-                                                        }
-                                                    }
-
-                                                    for (int j = 0; j < img.Height; j++)
-                                                    {
-                                                        Color color = gradientColors.GetPixel(j, 0);
-
-                                                        ImageAttributes imageAttributes = new ImageAttributes();
-
-                                                        ColorMatrix colorMatrix = new ColorMatrix(getColorMatrix(color));
-
-                                                        imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                                                        g.DrawImage(img, new Rectangle(offset.X, offset.Y + j, img.Width, 1), 0, j, img.Width, 1, GraphicsUnit.Pixel, imageAttributes);
-                                                    }
-                                                    break;
-                                            }
+                                            colorImageAttributes.SetColorMatrix(colorColorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                                            Graphics.FromImage(resultImage).DrawImage(img, new Rectangle(new Point(0,0), img.Size), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, colorImageAttributes);
+                                        }
+                                        else if (colorTransform.GetType() == typeof(Data.JS.Gradient))
+                                        {
+                                            resultImage = ((Data.JS.Gradient)colorTransform).Apply(img);
                                         }
                                         else
                                         {
-                                            // Draw the image with the specified color
-                                            Color color = (Color)JSEngine.Evaluate(colorOrigin.Value).ToObject();
-
-                                            ImageAttributes imageAttributes = new ImageAttributes();
-
-                                            ColorMatrix colorMatrix = new ColorMatrix(getColorMatrix(color));
-
-                                            imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                                            g.DrawImage(img, new Rectangle(offset, img.Size), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imageAttributes);
+                                            resultImage = new Bitmap(img.Width, img.Height);
                                         }
                                     }
+                                        // TODO : Add a better color correction for Steam (See https://github.com/Piripe/Oxygen/issues/1)
+
+                                        ImageAttributes imageAttributes = new ImageAttributes();
+
+                                        ColorMatrix colorMatrix = new ColorMatrix(new float[][] {
+                                            new float[] {1,  0,  0,  0, 0},
+                                            new float[] {0,  1,  0,  0, 0},
+                                            new float[] {0,  0,  1,  0, 0},
+                                            new float[] {0,  0,  0,  1, 0},
+                                            new float[] {1.0f/255, 1.0f / 255, 1.0f / 255, 1.0f / 255, 1}});
+
+                                        imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                                        g.DrawImage(resultImage, new Rectangle(offset, img.Size), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imageAttributes);
                                 }
                             }
 
@@ -499,12 +427,11 @@ namespace Oxygen.Modules
         /// <returns></returns>
         private static float[][] getColorMatrix(Color color)
         {
-            // TODO : Add a better color correction for Steam (See https://github.com/Piripe/Oxygen/issues/1)
             float[][] colorMatrixElements = {
-                                new float[] {(float)(color.R+1) / 255,  0,  0,  0, 0},
-                                new float[] {0,  (float)(color.G+1) / 255,  0,  0, 0},
-                                new float[] {0,  0,  (float)(color.B+1) / 255,  0, 0},
-                                new float[] {0,  0,  0,  (float)(color.A+1) / 255, 0},
+                                new float[] {(float)(color.R) / 255,  0,  0,  0, 0},
+                                new float[] {0,  (float)(color.G) / 255,  0,  0, 0},
+                                new float[] {0,  0,  (float)(color.B) / 255,  0, 0},
+                                new float[] {0,  0,  0,  (float)(color.A) / 255, 0},
                                 new float[] {0,  0,  0,  0, 2}};
             return colorMatrixElements;
         }
