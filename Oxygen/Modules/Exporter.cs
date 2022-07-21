@@ -459,8 +459,8 @@ namespace Oxygen.Modules
                                                                         case "ellipse":
                                                                             img_g.SmoothingMode = SmoothingMode.HighQuality;
 
-                                                                            graphicsPath.AddEllipse(new Rectangle(srcX, srcY, srcWidth, srcHeight));
-                                                                            strokeGraphicsPath.AddEllipse(new Rectangle(srcX - strokePathOffset / 2, srcY - strokePathOffset / 2, srcWidth + strokePathOffset, srcHeight + strokePathOffset));
+                                                                            graphicsPath.AddEllipse(new RectangleF(srcX - 0.5f, srcY - 0.5f, srcWidth, srcHeight));
+                                                                            strokeGraphicsPath.AddEllipse(new RectangleF(srcX - strokePathOffset / 2f - 0.5f, srcY - strokePathOffset / 2f - 0.5f, srcWidth + strokePathOffset, srcHeight + strokePathOffset));
 
                                                                             break;
                                                                         default:
