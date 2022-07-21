@@ -397,47 +397,48 @@ namespace Oxygen.Modules
                                                 {
                                                     if (int.TryParse((tgaInfo.Attribute("y") ?? new XAttribute("y", "0")).Value, out int srcY))
                                                     {
-                                                        using (Image img = new Bitmap(imageWidth, imageHeight))
+
+                                                        string strokeAlign = (tgaInfo.Attribute("stroke-align") ?? new XAttribute("stroke-align", "center")).Value;
+
+                                                        if (float.TryParse((tgaInfo.Attribute("stroke-width") ?? new XAttribute("stroke-width", "1")).Value, out float strokeWidth))
                                                         {
-                                                            Graphics img_g = Graphics.FromImage(img);
 
-
-                                                            XAttribute? fillColor = tgaInfo.Attribute("fill");
-                                                            XAttribute? strokeColor = tgaInfo.Attribute("stroke");
-
-                                                            GraphicsPath graphicsPath = new GraphicsPath();
-                                                            GraphicsPath strokeGraphicsPath = new GraphicsPath();
-
-                                                            string strokeAlign = (tgaInfo.Attribute("stroke-align") ?? new XAttribute("stroke-align", "center")).Value;
-
-                                                            if (float.TryParse((tgaInfo.Attribute("stroke-width") ?? new XAttribute("stroke-width", "1")).Value, out float strokeWidth))
+                                                            if (srcWidth < 1)
+                                                            {
+                                                                ErrorManager.Error("\"stroke-width\" Attribute must be positive.", file, destfile);
+                                                                return;
+                                                            }
+                                                            if (int.TryParse((tgaInfo.Attribute("border-radius") ?? new XAttribute("border-radius", "0")).Value, out int borderRadius))
                                                             {
 
-                                                                if (srcWidth < 1)
+                                                                if (srcWidth < 0)
                                                                 {
-                                                                    ErrorManager.Error("\"stroke-width\" Attribute must be positive.", file, destfile);
+                                                                    ErrorManager.Error("\"border-radius\" Attribute must be greater or equal to 0.", file, destfile);
                                                                     return;
                                                                 }
-                                                                if (int.TryParse((tgaInfo.Attribute("border-radius") ?? new XAttribute("border-radius", "0")).Value, out int borderRadius))
+
+                                                                int strokePathOffset = 0;
+
+                                                                switch (strokeAlign)
                                                                 {
+                                                                    case "inside":
+                                                                        strokePathOffset = (int)-strokeWidth;
+                                                                        break;
+                                                                    case "outside":
+                                                                        strokePathOffset = (int)strokeWidth;
+                                                                        break;
+                                                                }
 
-                                                                    if (srcWidth < 0)
-                                                                    {
-                                                                        ErrorManager.Error("\"border-radius\" Attribute must be greater or equal to 0.", file, destfile);
-                                                                        return;
-                                                                    }
+                                                                using (Image img = new Bitmap(Math.Max(imageWidth, srcX + srcWidth+ (int)(strokePathOffset +strokeWidth)/2), Math.Max(imageHeight, srcY + srcHeight + (int)(strokePathOffset + strokeWidth)/2)))
+                                                                {
+                                                                    Graphics img_g = Graphics.FromImage(img);
 
-                                                                    int strokePathOffset = 0;
 
-                                                                    switch (strokeAlign)
-                                                                    {
-                                                                        case "inside":
-                                                                            strokePathOffset = (int)-strokeWidth;
-                                                                            break;
-                                                                        case "outside":
-                                                                            strokePathOffset = (int)strokeWidth;
-                                                                            break;
-                                                                    }
+                                                                    XAttribute? fillColor = tgaInfo.Attribute("fill");
+                                                                    XAttribute? strokeColor = tgaInfo.Attribute("stroke");
+
+                                                                    GraphicsPath graphicsPath = new GraphicsPath();
+                                                                    GraphicsPath strokeGraphicsPath = new GraphicsPath();
 
                                                                     switch (tgaInfo.Name.LocalName)
                                                                     {
