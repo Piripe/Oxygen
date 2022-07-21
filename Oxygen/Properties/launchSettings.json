@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Oxygen": {
-      "commandName": "Project",
-      "commandLineArgs": "-d -p \"D:\\Mes documents\\Bureau\\My super skin\" -o \"C:\\Program Files (x86)\\Steam\\skins\""
+      "commandName": "Project"
     }
   }
 }

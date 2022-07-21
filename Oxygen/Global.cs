@@ -9,7 +9,7 @@ namespace Oxygen
 {
     internal static class Global
     {
-        public const string Version = "alpha 0.1";
+        public const string Version = "alpha 0.2";
         internal static Data.SkinConfig SkinConfig = new Data.SkinConfig();
         internal static Data.SkinData? SkinData;
         internal static Engine? JSEngine;
