@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Oxygen": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-d -p \"D:\\Mes documents\\Bureau\\My super skin\\src\" -o \"D:\\Mes documents\\Bureau\\My super skin\\output\""
     }
   }
 }

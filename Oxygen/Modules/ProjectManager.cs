@@ -72,6 +72,7 @@ namespace Oxygen.Modules
                     }
                 }
             }
+            Directory.CreateDirectory(Path.GetDirectoryName(path) ?? "");
             doc.Save(path);
         }
         internal static void Load(Forms.ProgressBar progress, string path)

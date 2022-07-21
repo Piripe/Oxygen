@@ -132,7 +132,8 @@ namespace Oxygen.Modules
             }
             else {
                 CopyDirectory(copySrc,copyDest);
-                Directory.Delete(copySrc, true);
+                if (Directory.Exists(copySrc))
+                    Directory.Delete(copySrc, true);
             }
 
 
@@ -301,73 +302,159 @@ namespace Oxygen.Modules
                         // Render each source one by one (<src>)
                         foreach (XElement tgaInfo in tgaInfos.Elements())
                         {
-                            void RenderSrc()
+                            void ColorizeImage(Image img, XAttribute? colorOrigin)
                             {
-                                string sourcePath = tgaInfo.Value.StartsWith("~/") ? Path.Combine(rootWorkingPath, "skin", tgaInfo.Value.Remove(0, 2)) : Path.Combine(Path.GetDirectoryName(XMLFileLocation)??"", Path.GetFileNameWithoutExtension(XMLFileLocation), tgaInfo.Value);
-                                if (!File.Exists(sourcePath))
+
+                                // Set the offset
+                                XAttribute? offsetAttr = tgaInfo.Attribute("offset");
+                                Point offset = new Point(0, 0);
+                                if (offsetAttr != null)
                                 {
-                                    ErrorManager.Error($"The image \"{sourcePath.Replace(Path.Combine(rootWorkingPath, "skin"), "").Remove(0, 1)}\" must exist.", file, destfile);
-                                    return;
+                                    string[] offsetStr = offsetAttr.Value.Split(' ');
+                                    int offsetX, offsetY = 0;
+                                    if (!(int.TryParse(offsetStr[0], out offsetX) & int.TryParse(offsetStr[1], out offsetY))) ErrorManager.Error($"\"offset\" Attribute must be two numbers", file, destfile);
+
+                                    offset = new Point(offsetX, offsetY);
                                 }
-                                using (Image img = Bitmap.FromFile(sourcePath))
+
+                                Image resultImage;
+
+                                if (colorOrigin == null)
                                 {
-                                    List<XAttribute> attrs = tgaInfo.Attributes().ToList();
-                                    XAttribute? colorOrigin = attrs.Find((x) => x.Name == "color");
+                                    resultImage = img;
+                                }
+                                else
+                                {
+                                    object colorTransform = JSEngine.Evaluate(colorOrigin.Value).ToObject();
 
-                                    // Set the offset
-                                    XAttribute? offsetAttr = attrs.Find((x) => x.Name == "offset");
-                                    Point offset = new Point(0, 0);
-                                    if (offsetAttr != null)
+                                    if (colorTransform.GetType() == typeof(Color))
                                     {
-                                        string[] offsetStr = offsetAttr.Value.Split(' ');
-                                        int offsetX = 0;
-                                        int offsetY = 0;
-                                        if (!(int.TryParse(offsetStr[0], out offsetX) & int.TryParse(offsetStr[1], out offsetY))) ErrorManager.Error($"\"offset\" Attribute must be two numbers", file, destfile);
+                                        resultImage = new Bitmap(img.Width, img.Height);
+                                        ImageAttributes colorImageAttributes = new ImageAttributes();
 
-                                        offset = new Point(offsetX, offsetY);
+                                        ColorMatrix colorColorMatrix = new ColorMatrix(getColorMatrix((Color)colorTransform));
+
+                                        colorImageAttributes.SetColorMatrix(colorColorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                                        Graphics.FromImage(resultImage).DrawImage(img, new Rectangle(new Point(0, 0), img.Size), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, colorImageAttributes);
                                     }
-
-                                    Image resultImage;
-
-                                    if (colorOrigin == null)
+                                    else if (colorTransform.GetType() == typeof(Data.JS.Gradient))
                                     {
-                                        resultImage = img;
+                                        resultImage = ((Data.JS.Gradient)colorTransform).Apply(img);
                                     }
-                                    else{
-                                        object colorTransform = JSEngine.Evaluate(colorOrigin.Value).ToObject();
-
-                                        if (colorTransform.GetType() == typeof(Color))
-                                        {
-                                            resultImage = new Bitmap(img.Width, img.Height);
-                                            ImageAttributes colorImageAttributes = new ImageAttributes();
-
-                                            ColorMatrix colorColorMatrix = new ColorMatrix(getColorMatrix((Color)colorTransform));
-
-                                            colorImageAttributes.SetColorMatrix(colorColorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                                            Graphics.FromImage(resultImage).DrawImage(img, new Rectangle(new Point(0,0), img.Size), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, colorImageAttributes);
-                                        }
-                                        else if (colorTransform.GetType() == typeof(Data.JS.Gradient))
-                                        {
-                                            resultImage = ((Data.JS.Gradient)colorTransform).Apply(img);
-                                        }
-                                        else
-                                        {
-                                            resultImage = new Bitmap(img.Width, img.Height);
-                                        }
+                                    else
+                                    {
+                                        resultImage = new Bitmap(img.Width, img.Height);
                                     }
-                                        // TODO : Add a better color correction for Steam (See https://github.com/Piripe/Oxygen/issues/1)
+                                }
+                                // TODO : Add a better color correction for Steam (See https://github.com/Piripe/Oxygen/issues/1)
 
-                                        ImageAttributes imageAttributes = new ImageAttributes();
+                                ImageAttributes imageAttributes = new ImageAttributes();
 
-                                        ColorMatrix colorMatrix = new ColorMatrix(new float[][] {
+                                ColorMatrix colorMatrix = new ColorMatrix(new float[][] {
                                             new float[] {1,  0,  0,  0, 0},
                                             new float[] {0,  1,  0,  0, 0},
                                             new float[] {0,  0,  1,  0, 0},
                                             new float[] {0,  0,  0,  1, 0},
                                             new float[] {1.0f/255, 1.0f / 255, 1.0f / 255, 1.0f / 255, 1}});
 
-                                        imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-                                        g.DrawImage(resultImage, new Rectangle(offset, img.Size), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imageAttributes);
+                                imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                                g.DrawImage(resultImage, new Rectangle(offset, img.Size), 0, 0, img.Width, img.Height, GraphicsUnit.Pixel, imageAttributes);
+                            }
+
+                            void RenderSrc()
+                            {
+                                switch (tgaInfo.Name.LocalName)
+                                {
+                                    case "src" or "img":
+                                        string sourcePath = tgaInfo.Value.StartsWith("~/") ? Path.Combine(rootWorkingPath, "skin", tgaInfo.Value.Remove(0, 2)) : Path.Combine(Path.GetDirectoryName(XMLFileLocation) ?? "", Path.GetFileNameWithoutExtension(XMLFileLocation), tgaInfo.Value);
+                                        if (!File.Exists(sourcePath))
+                                        {
+                                            ErrorManager.Error($"The image \"{sourcePath.Replace(Path.Combine(rootWorkingPath, "skin"), "").Remove(0, 1)}\" must exist.", file, destfile);
+                                            return;
+                                        }
+                                        using (Image img = Bitmap.FromFile(sourcePath))
+                                        {
+                                            ColorizeImage(img, tgaInfo.Attribute("color"));
+                                        }
+                                        break;
+                                    case "rect":
+
+                                        if (int.TryParse((tgaInfo.Attribute("width") ?? new XAttribute("width", imageWidth.ToString())).Value, out int srcWidth))
+                                        {
+                                            if (srcWidth < 1)
+                                            {
+                                                ErrorManager.Error("\"width\" Attribute must be positive.", file, destfile);
+                                                return;
+                                            }
+                                            if (int.TryParse((tgaInfo.Attribute("height") ?? new XAttribute("height", imageWidth.ToString())).Value, out int srcHeight))
+                                            {
+                                                if (srcWidth < 1)
+                                                {
+                                                    ErrorManager.Error("\"height\" Attribute must be positive.", file, destfile);
+                                                    return;
+                                                }
+                                                if (int.TryParse((tgaInfo.Attribute("x") ?? new XAttribute("x", "0")).Value, out int srcX))
+                                                {
+                                                    if (int.TryParse((tgaInfo.Attribute("y") ?? new XAttribute("y", "0")).Value, out int srcY))
+                                                    {
+                                                        using (Image img = new Bitmap(imageWidth, imageHeight))
+                                                        {
+                                                            Graphics img_g = Graphics.FromImage(img);
+
+
+                                                            XAttribute? fillColor = tgaInfo.Attribute("fill");
+                                                            XAttribute? strokeColor = tgaInfo.Attribute("stroke");
+
+                                                            if (fillColor != null)
+                                                            {
+                                                                //img_g.SmoothingMode = SmoothingMode.HighQuality;
+                                                                img_g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                                                img_g.FillRectangle(Brushes.White, srcX, srcY, srcWidth, srcHeight);
+
+                                                                ColorizeImage(img, fillColor);
+                                                            }
+
+                                                            img_g.Clear(Color.Transparent);
+                                                            if (strokeColor != null)
+                                                            {
+                                                                //img_g.SmoothingMode = SmoothingMode.HighQuality;
+                                                                img_g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                                                if (float.TryParse((tgaInfo.Attribute("stroke-width") ?? new XAttribute("stroke-width", "1")).Value, out float strokeWidth))
+                                                                {
+                                                                    if (srcWidth < 1)
+                                                                    {
+                                                                        ErrorManager.Error("\"stroke-width\" Attribute must be positive.", file, destfile);
+                                                                        return;
+                                                                    }
+                                                                    string strokeAlign = (tgaInfo.Attribute("stroke-align") ?? new XAttribute("stroke-align", "center")).Value;
+
+                                                                    Pen strokePen = new Pen(Brushes.White, strokeWidth);
+
+
+                                                                    switch (strokeAlign)
+                                                                    {
+                                                                        case "inside":
+                                                                            img_g.DrawRectangle(strokePen, srcX+ strokeWidth/2, srcY + strokeWidth / 2, srcWidth - strokeWidth, srcHeight - strokeWidth);
+                                                                            break;
+                                                                        case "center":
+                                                                            img_g.DrawRectangle(strokePen, srcX, srcY, srcWidth, srcHeight);
+                                                                            break;
+                                                                        case "outside":
+                                                                            img_g.DrawRectangle(strokePen, srcX - strokeWidth / 2, srcY - strokeWidth / 2, srcWidth + strokeWidth, srcHeight + strokeWidth);
+                                                                            break;
+                                                                    }
+
+                                                                }
+                                                                ColorizeImage(img, strokeColor);
+                                                            }
+
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                            break;
                                 }
                             }
 
@@ -415,7 +502,7 @@ namespace Oxygen.Modules
             }
             catch (Exception ex)
             {
-                    ErrorManager.Error(ex.Message, file, destfile);
+                    ErrorManager.Error(ex.ToString(), file, destfile);
                     return;
             }
         }
@@ -445,25 +532,27 @@ namespace Oxygen.Modules
         public static void CopyDirectory(string src, string dest)
         {
             var dir = new DirectoryInfo(src);
-            if (!dir.Exists)
-                throw new DirectoryNotFoundException($"Source directory not found: {dir.FullName}");
-            DirectoryInfo[] dirs = dir.GetDirectories();
-            Directory.CreateDirectory(dest);
-            foreach (FileInfo file in dir.GetFiles())
+            if (dir.Exists)
             {
-                string targetFilePath = Path.Combine(dest, file.Name);
-                try
+                DirectoryInfo[] dirs = dir.GetDirectories();
+                Directory.CreateDirectory(dest);
+                foreach (FileInfo file in dir.GetFiles())
                 {
-                    file.CopyTo(targetFilePath);
-                } catch { }
-            }
-            foreach (DirectoryInfo subDir in dirs)
-            {
-                // Exception for .git folder because Git add weird permissions so it's better to ignore this folder
-                if (subDir.Name != ".git")
+                    string targetFilePath = Path.Combine(dest, file.Name);
+                    try
+                    {
+                        file.CopyTo(targetFilePath);
+                    }
+                    catch { }
+                }
+                foreach (DirectoryInfo subDir in dirs)
                 {
-                    string newDestinationDir = Path.Combine(dest, subDir.Name);
-                    CopyDirectory(subDir.FullName, newDestinationDir);
+                    // Exception for .git folder because Git add weird permissions so it's better to ignore this folder
+                    if (subDir.Name != ".git")
+                    {
+                        string newDestinationDir = Path.Combine(dest, subDir.Name);
+                        CopyDirectory(subDir.FullName, newDestinationDir);
+                    }
                 }
             }
         }
