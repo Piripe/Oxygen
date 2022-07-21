@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing.Drawing2D;
 
 namespace Oxygen.Modules
 {
@@ -47,5 +48,22 @@ namespace Oxygen.Modules
 
         #endregion
 
+
+        #region GraphicsPath
+
+        internal static void AddRoundedRectangle(this GraphicsPath path, RectangleF rect, float radius)
+        {
+            radius = Math.Min(radius, rect.Width/2);
+            path.AddArc(rect.Left, rect.Top, radius*2, radius * 2, 180, 90);
+            path.AddLine(rect.Left+radius,rect.Top,rect.Right-radius,rect.Top);
+            path.AddArc(rect.Right-radius * 2, rect.Top, radius * 2, radius * 2, 270, 90);
+            path.AddLine(rect.Right, rect.Top + radius, rect.Right, rect.Bottom-radius);
+            path.AddArc(rect.Right - radius * 2, rect.Bottom-radius * 2, radius * 2, radius * 2, 0, 90);
+            path.AddLine(rect.Right-radius, rect.Bottom, rect.Left+radius, rect.Bottom);
+            path.AddArc(rect.Left, rect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
+            path.AddLine(rect.Left, rect.Bottom-radius, rect.Left, rect.Top+radius);
+        }
+
+        #endregion
     }
 }

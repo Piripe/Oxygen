@@ -410,66 +410,82 @@ namespace Oxygen.Modules
 
                                                             string strokeAlign = (tgaInfo.Attribute("stroke-align") ?? new XAttribute("stroke-align", "center")).Value;
 
-                                                            if (float.TryParse((tgaInfo.Attribute("stroke-width") ?? new XAttribute("stroke-width", "1")).Value, out float strokeWidth)) {
+                                                            if (float.TryParse((tgaInfo.Attribute("stroke-width") ?? new XAttribute("stroke-width", "1")).Value, out float strokeWidth))
+                                                            {
 
                                                                 if (srcWidth < 1)
                                                                 {
                                                                     ErrorManager.Error("\"stroke-width\" Attribute must be positive.", file, destfile);
                                                                     return;
                                                                 }
-
-                                                                int strokePathOffset = 0;
-
-                                                                switch (strokeAlign)
+                                                                if (int.TryParse((tgaInfo.Attribute("border-radius") ?? new XAttribute("border-radius", "0")).Value, out int borderRadius))
                                                                 {
-                                                                    case "inside":
-                                                                        strokePathOffset = (int)-strokeWidth;
-                                                                        break;
-                                                                    case "outside":
-                                                                        strokePathOffset = (int)strokeWidth;
-                                                                        break;
-                                                                }
 
-                                                                switch (tgaInfo.Name.LocalName)
-                                                                {
-                                                                    case "rect":
-                                                                        img_g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                                                    if (srcWidth < 0)
+                                                                    {
+                                                                        ErrorManager.Error("\"border-radius\" Attribute must be greater or equal to 0.", file, destfile);
+                                                                        return;
+                                                                    }
 
-                                                                        graphicsPath.AddRectangle(new Rectangle(srcX, srcY, srcWidth, srcHeight));
-                                                                        strokeGraphicsPath.AddRectangle(new Rectangle(srcX - strokePathOffset / 2, srcY - strokePathOffset / 2, srcWidth + strokePathOffset, srcHeight + strokePathOffset));
+                                                                    int strokePathOffset = 0;
 
-                                                                        break;
-                                                                    case "ellipse":
-                                                                        img_g.SmoothingMode = SmoothingMode.HighQuality;
-                                                                        img_g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                                                    switch (strokeAlign)
+                                                                    {
+                                                                        case "inside":
+                                                                            strokePathOffset = (int)-strokeWidth;
+                                                                            break;
+                                                                        case "outside":
+                                                                            strokePathOffset = (int)strokeWidth;
+                                                                            break;
+                                                                    }
 
-                                                                        graphicsPath.AddEllipse(new Rectangle(srcX, srcY, srcWidth, srcHeight));
-                                                                        strokeGraphicsPath.AddEllipse(new Rectangle(srcX - strokePathOffset / 2, srcY - strokePathOffset / 2, srcWidth + strokePathOffset, srcHeight + strokePathOffset));
+                                                                    switch (tgaInfo.Name.LocalName)
+                                                                    {
+                                                                        case "rect":
 
-                                                                        break;
-                                                                    default:
-                                                                        img_g.SmoothingMode = SmoothingMode.HighQuality;
-                                                                        img_g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                                                                        img_g.DrawString(tgaInfo.Name.LocalName, new Font(SystemFonts.DefaultFont.FontFamily,8),Brushes.White, new Point(srcX, srcY),StringFormat.GenericDefault);
+                                                                            if (borderRadius == 0)
+                                                                            {
+                                                                                graphicsPath.AddRectangle(new Rectangle(srcX, srcY, srcWidth, srcHeight));
+                                                                                strokeGraphicsPath.AddRectangle(new Rectangle(srcX - strokePathOffset / 2, srcY - strokePathOffset / 2, srcWidth + strokePathOffset, srcHeight + strokePathOffset));
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                img_g.SmoothingMode = SmoothingMode.HighQuality;
+                                                                                graphicsPath.AddRoundedRectangle(new RectangleF(srcX - 0.5f, srcY - 0.5f, srcWidth, srcHeight), borderRadius);
+                                                                                strokeGraphicsPath.AddRoundedRectangle(new RectangleF(srcX - strokePathOffset / 2f - 0.5f, srcY - strokePathOffset / 2f - 0.5f, srcWidth + strokePathOffset, srcHeight + strokePathOffset), borderRadius + strokePathOffset/2);
+                                                                            }
+                                                                            break;
+                                                                        case "ellipse":
+                                                                            img_g.SmoothingMode = SmoothingMode.HighQuality;
 
-                                                                        break;
-                                                                }
+                                                                            graphicsPath.AddEllipse(new Rectangle(srcX, srcY, srcWidth, srcHeight));
+                                                                            strokeGraphicsPath.AddEllipse(new Rectangle(srcX - strokePathOffset / 2, srcY - strokePathOffset / 2, srcWidth + strokePathOffset, srcHeight + strokePathOffset));
 
-                                                                if (fillColor != null)
-                                                                {
-                                                                    img_g.FillPath(Brushes.White, graphicsPath);
+                                                                            break;
+                                                                        default:
+                                                                            img_g.SmoothingMode = SmoothingMode.HighQuality;
+                                                                            img_g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                                                            img_g.DrawString(tgaInfo.Name.LocalName, new Font(SystemFonts.DefaultFont.FontFamily, 8), Brushes.White, new Point(srcX, srcY), StringFormat.GenericDefault);
 
-                                                                    ColorizeImage(img, fillColor);
-                                                                }
+                                                                            break;
+                                                                    }
 
-                                                                img_g.Clear(Color.Transparent);
-                                                                if (strokeColor != null)
-                                                                {
-                                                                    Pen strokePen = new Pen(Brushes.White, strokeWidth);
+                                                                    if (fillColor != null)
+                                                                    {
+                                                                        img_g.FillPath(Brushes.White, graphicsPath);
 
-                                                                    img_g.DrawPath(strokePen, strokeGraphicsPath);
+                                                                        ColorizeImage(img, fillColor);
+                                                                    }
 
-                                                                    ColorizeImage(img, strokeColor);
+                                                                    img_g.Clear(Color.Transparent);
+                                                                    if (strokeColor != null)
+                                                                    {
+                                                                        Pen strokePen = new Pen(Brushes.White, strokeWidth);
+
+                                                                        img_g.DrawPath(strokePen, strokeGraphicsPath);
+
+                                                                        ColorizeImage(img, strokeColor);
+                                                                    }
                                                                 }
                                                             }
                                                         }
