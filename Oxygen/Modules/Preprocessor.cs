@@ -17,7 +17,7 @@ namespace Oxygen.Modules
         /// <param name="s"></param>
         /// <param name="JSEngine"></param>
         /// <returns></returns>
-        internal static string PreProcess(string s, string file, Jint.Engine JSEngine)
+        internal static string PreProcess(string s, string file, Jint.Engine JSEngine, bool useCssColorFormat = false)
         {
             string processedStr = ProcessIf(s, file, JSEngine);
 
@@ -31,7 +31,14 @@ namespace Oxygen.Modules
                     {
                         // Exception for the Color because Steam uses a weird color code and it's simpler for the skin developer
                         Color color = (Color)result;
-                        return string.Format("{0} {1} {2} {3}", color.R, color.G, color.B, color.A);
+                        if (useCssColorFormat)
+                        {
+                            return ColorTranslator.ToHtml(color);
+                        }
+                        else
+                        {
+                            return string.Format("{0} {1} {2} {3}", color.R, color.G, color.B, color.A);
+                        }
                     }
                     else
                     {

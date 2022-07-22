@@ -88,10 +88,38 @@ namespace Oxygen.Modules
             for (int i = 0; i < vguiFiles.Length; i++)
             {
                 string vguiFile = vguiFiles[i];
-                string destinationFile = vguiFile.Replace(Path.Combine(rootWorkingPath, "skin"), Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", (Global.SkinData??new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars()))));
+                string destinationFile = vguiFile.Replace(Path.Combine(rootWorkingPath, "skin"), Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", (Global.SkinData ?? new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars()))));
 
-                Directory.CreateDirectory(Path.GetDirectoryName(destinationFile)??"");
-                File.WriteAllText(destinationFile, Preprocessor.PreProcess(File.ReadAllText(vguiFile), vguiFile.Replace(Path.Combine(rootWorkingPath, "skin"),"").Remove(0,1), JSEngine));
+                Directory.CreateDirectory(Path.GetDirectoryName(destinationFile) ?? "");
+                File.WriteAllText(destinationFile, Preprocessor.PreProcess(File.ReadAllText(vguiFile), vguiFile.Replace(Path.Combine(rootWorkingPath, "skin"), "").Remove(0, 1), JSEngine));
+            }
+
+
+            Task.Factory.StartNew(() => {
+                progress.workingLabel.Text = "Loading CSS Files List...";
+                progress.progressBar1.Value = 60;
+                if (progress.Cancelled) { progress.DialogResult = System.Windows.Forms.DialogResult.Cancel; }
+            }, CancellationToken.None, TaskCreationOptions.None, context);
+            progress.drawCLIProgressbar("Loading CSS Files List...", 60);
+
+            // Get the CSS files (.css) 
+            string[] cssFiles = GetCSSFiles(Path.Combine(rootWorkingPath, "skin"));
+
+            Task.Factory.StartNew(() => {
+                progress.workingLabel.Text = "Preprocessing CSS Files...";
+                progress.progressBar1.Value = 65;
+                if (progress.Cancelled) { progress.DialogResult = System.Windows.Forms.DialogResult.Cancel; }
+            }, CancellationToken.None, TaskCreationOptions.None, context);
+            progress.drawCLIProgressbar("Preprocessing CSS Files...", 65);
+
+            // Apply the pre processor on all CSS files
+            for (int i = 0; i < cssFiles.Length; i++)
+            {
+                string cssFile = cssFiles[i];
+                string destinationFile = cssFile.Replace(Path.Combine(rootWorkingPath, "skin"), Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", (Global.SkinData ?? new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars()))));
+
+                Directory.CreateDirectory(Path.GetDirectoryName(destinationFile) ?? "");
+                File.WriteAllText(destinationFile, Preprocessor.PreProcess(File.ReadAllText(cssFile), cssFile.Replace(Path.Combine(rootWorkingPath, "skin"), "").Remove(0, 1), JSEngine,true));
             }
 
             Task.Factory.StartNew(() => {
@@ -176,7 +204,7 @@ namespace Oxygen.Modules
         /// <returns></returns>
         private static string[] GetVGUIFiles(string path)
         {
-            string[] vgui_exts = new string[] { ".styles" , ".layout" , ".res", ".menu" };
+            string[] vgui_exts = new string[] { ".styles", ".layout", ".res", ".menu" };
             List<string> paths = new List<string>();
             foreach (string file in Directory.GetFiles(path))
             {
@@ -185,6 +213,25 @@ namespace Oxygen.Modules
             foreach (string dir in Directory.GetDirectories(path))
             {
                 paths.AddRange(GetVGUIFiles(dir));
+            }
+            return paths.ToArray();
+        }
+        /// <summary>
+        /// Return all .css files in the specified <paramref name="path"/>
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        private static string[] GetCSSFiles(string path)
+        {
+            string[] vgui_exts = new string[] { ".css" };
+            List<string> paths = new List<string>();
+            foreach (string file in Directory.GetFiles(path))
+            {
+                if (vgui_exts.Any((x) => file.EndsWith(x))) { paths.Add(file); }
+            }
+            foreach (string dir in Directory.GetDirectories(path))
+            {
+                paths.AddRange(GetCSSFiles(dir));
             }
             return paths.ToArray();
         }
