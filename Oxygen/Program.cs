@@ -19,6 +19,11 @@ namespace Oxygen
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            if (Data.Steam.SteamRootDir != null && Global.SkinConfig.skinExportPath == null)
+            {
+                Global.SkinConfig.skinExportPath = Data.Steam.SkinsDir;
+            }
+
             if (args.Length == 0)
             {
                 Modules.CLI.WriteStart();

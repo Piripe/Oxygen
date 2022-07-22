@@ -22,5 +22,17 @@ namespace Oxygen.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SteamDirectory {
+            get {
+                return ((string)(this["SteamDirectory"]));
+            }
+            set {
+                this["SteamDirectory"] = value;
+            }
+        }
     }
 }

@@ -14,6 +14,8 @@ namespace Oxygen
         internal static Data.SkinData? SkinData;
         internal static Engine? JSEngine;
         internal static Data.JS.Document? Document;
+
+
         internal static Forms.Editor? Editor;
         internal static Forms.ErrorConsole ErrorConsole = new Forms.ErrorConsole();
 
