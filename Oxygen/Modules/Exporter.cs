@@ -388,7 +388,7 @@ namespace Oxygen.Modules
                                             }
                                             if (int.TryParse((tgaInfo.Attribute("height") ?? new XAttribute("height", imageWidth.ToString())).Value, out int srcHeight))
                                             {
-                                                if (srcWidth < 1)
+                                                if (srcHeight < 1)
                                                 {
                                                     ErrorManager.Error("\"height\" Attribute must be positive.", file, destfile);
                                                     return;
@@ -403,20 +403,13 @@ namespace Oxygen.Modules
                                                         if (float.TryParse((tgaInfo.Attribute("stroke-width") ?? new XAttribute("stroke-width", "1")).Value, out float strokeWidth))
                                                         {
 
-                                                            if (srcWidth < 1)
+                                                            if (strokeWidth < 1)
                                                             {
                                                                 ErrorManager.Error("\"stroke-width\" Attribute must be positive.", file, destfile);
                                                                 return;
                                                             }
                                                             if (int.TryParse((tgaInfo.Attribute("border-radius") ?? new XAttribute("border-radius", "0")).Value, out int borderRadius))
                                                             {
-
-                                                                if (srcWidth < 0)
-                                                                {
-                                                                    ErrorManager.Error("\"border-radius\" Attribute must be greater or equal to 0.", file, destfile);
-                                                                    return;
-                                                                }
-
                                                                 int strokePathOffset = 0;
 
                                                                 switch (strokeAlign)
@@ -453,7 +446,7 @@ namespace Oxygen.Modules
                                                                             {
                                                                                 img_g.SmoothingMode = SmoothingMode.HighQuality;
                                                                                 graphicsPath.AddRoundedRectangle(new RectangleF(srcX - 0.5f, srcY - 0.5f, srcWidth, srcHeight), borderRadius);
-                                                                                strokeGraphicsPath.AddRoundedRectangle(new RectangleF(srcX - strokePathOffset / 2f - 0.5f, srcY - strokePathOffset / 2f - 0.5f, srcWidth + strokePathOffset, srcHeight + strokePathOffset), borderRadius + strokePathOffset/2);
+                                                                                strokeGraphicsPath.AddRoundedRectangle(new RectangleF(srcX - strokePathOffset / 2f - 0.5f, srcY - strokePathOffset / 2f - 0.5f, srcWidth + strokePathOffset, srcHeight + strokePathOffset), borderRadius + (borderRadius > 0 ? strokePathOffset : -strokePathOffset) / 2);
                                                                             }
                                                                             break;
                                                                         case "ellipse":

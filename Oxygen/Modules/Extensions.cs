@@ -53,15 +53,32 @@ namespace Oxygen.Modules
 
         internal static void AddRoundedRectangle(this GraphicsPath path, RectangleF rect, float radius)
         {
-            radius = Math.Min(radius, rect.Width/2);
-            path.AddArc(rect.Left, rect.Top, radius*2, radius * 2, 180, 90);
-            path.AddLine(rect.Left+radius,rect.Top,rect.Right-radius,rect.Top);
-            path.AddArc(rect.Right-radius * 2, rect.Top, radius * 2, radius * 2, 270, 90);
-            path.AddLine(rect.Right, rect.Top + radius, rect.Right, rect.Bottom-radius);
-            path.AddArc(rect.Right - radius * 2, rect.Bottom-radius * 2, radius * 2, radius * 2, 0, 90);
-            path.AddLine(rect.Right-radius, rect.Bottom, rect.Left+radius, rect.Bottom);
-            path.AddArc(rect.Left, rect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
-            path.AddLine(rect.Left, rect.Bottom-radius, rect.Left, rect.Top+radius);
+            if (radius > 0)
+            {
+                radius = Math.Min(radius, rect.Width / 2);
+                path.AddArc(rect.Left, rect.Top, radius * 2, radius * 2, 180, 90);
+                path.AddLine(rect.Left + radius, rect.Top, rect.Right - radius, rect.Top);
+                path.AddArc(rect.Right - radius * 2, rect.Top, radius * 2, radius * 2, 270, 90);
+                path.AddLine(rect.Right, rect.Top + radius, rect.Right, rect.Bottom - radius);
+                path.AddArc(rect.Right - radius * 2, rect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
+                path.AddLine(rect.Right - radius, rect.Bottom, rect.Left + radius, rect.Bottom);
+                path.AddArc(rect.Left, rect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
+                path.AddLine(rect.Left, rect.Bottom - radius, rect.Left, rect.Top + radius);
+                path.CloseFigure();
+            }
+            else
+            {
+                radius = Math.Max(radius, -rect.Width / 2);
+                path.AddArc(rect.Left+radius, rect.Top+radius, radius * -2, radius * -2, 90, -90);
+                path.AddLine(rect.Left - radius, rect.Top, rect.Right + radius, rect.Top);
+                path.AddArc(rect.Right + radius, rect.Top + radius, radius * -2, radius * -2, 180, -90);
+                path.AddLine(rect.Right, rect.Top - radius, rect.Right, rect.Bottom + radius);
+                path.AddArc(rect.Right + radius, rect.Bottom + radius, radius * -2, radius * -2, 270, -90);
+                path.AddLine(rect.Right + radius, rect.Bottom, rect.Left - radius, rect.Bottom);
+                path.AddArc(rect.Left + radius, rect.Bottom + radius, radius * -2, radius * -2, 0, -90);
+                path.AddLine(rect.Left, rect.Bottom + radius, rect.Left, rect.Top - radius);
+                path.CloseFigure();
+            }
         }
 
         #endregion
