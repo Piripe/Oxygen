@@ -40,6 +40,7 @@ namespace Oxygen.Modules
         private static void ExportThread(Forms.ProgressBar progress, string destination, Jint.Engine JSEngine, TaskScheduler context)
         {
             string rootWorkingPath = Path.Combine(Path.GetTempPath(), "Oxygen");
+            bool containsSfpFile = false;
 
             // Delete the temp export Directory if it already exists
             if (Directory.Exists(Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", (Global.SkinData??new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars()))))) { Directory.Delete(Path.Combine(Path.Combine(rootWorkingPath, "export"), string.Join("_", (Global.SkinData??new Data.SkinData()).Title.Split(Path.GetInvalidFileNameChars()))), true); }
@@ -123,6 +124,70 @@ namespace Oxygen.Modules
             }
 
             Task.Factory.StartNew(() => {
+                progress.workingLabel.Text = "Preprocessing SFP CSS Files...";
+                progress.progressBar1.Value = 80;
+                if (progress.Cancelled) { progress.DialogResult = System.Windows.Forms.DialogResult.Cancel; }
+            }, CancellationToken.None, TaskCreationOptions.None, context);
+            progress.drawCLIProgressbar("Preprocessing SFP CSS Files...", 80);
+
+            if (File.Exists(Path.Combine(rootWorkingPath, "skin", "oxygen", "sfp", "friends.custom.css")))
+            {
+                void installFriends()
+                {
+                    containsSfpFile = true;
+                    File.WriteAllText(Path.Combine(Data.Steam.ClientUIDir, "friends.custom.css"), Preprocessor.PreProcess(File.ReadAllText(Path.Combine(rootWorkingPath, "skin", "oxygen", "sfp", "friends.custom.css")), Path.Combine("oxygen", "sfp", "friends.custom.css"), JSEngine, true));
+                }
+                if (File.Exists(Path.Combine(Data.Steam.ClientUIDir, "friends.custom.css")))
+                {
+                    if (Global.AutoExport)
+                    {
+                        File.Delete(Path.Combine(Data.Steam.ClientUIDir, "friends.custom.css"));
+                        installFriends();
+                    }
+                    else
+                    {
+                        if (MessageBox.Show("Friends skin already installed, can Oxygen replace it?", "Friends skin already installed", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            File.Delete(Path.Combine(Data.Steam.ClientUIDir, "friends.custom.css"));
+                            installFriends();
+                        }
+                    }
+                }
+                else
+                {
+                    installFriends();
+                }
+            }
+            if (File.Exists(Path.Combine(rootWorkingPath, "skin", "oxygen", "sfp", "libraryroot.custom.css")))
+            {
+                void installLibrary()
+                {
+                    containsSfpFile = true;
+                    File.WriteAllText(Path.Combine(Data.Steam.SteamUIDir, "libraryroot.custom.css"), Preprocessor.PreProcess(File.ReadAllText(Path.Combine(rootWorkingPath, "skin", "oxygen", "sfp", "libraryroot.custom.css")), Path.Combine("oxygen", "sfp", "libraryroot.custom.css"), JSEngine, true));
+                }
+                if (File.Exists(Path.Combine(Data.Steam.SteamUIDir, "libraryroot.custom.css")))
+                {
+                    if (Global.AutoExport)
+                    {
+                        File.Delete(Path.Combine(Data.Steam.SteamUIDir, "libraryroot.custom.css"));
+                        installLibrary();
+                    }
+                    else
+                    {
+                        if (MessageBox.Show("Library skin already installed, can Oxygen replace it?", "Library skin already installed", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            File.Delete(Path.Combine(Data.Steam.SteamUIDir, "libraryroot.custom.css"));
+                            installLibrary();
+                        }
+                    }
+                }
+                else
+                {
+                    installLibrary();
+                }
+            }
+
+            Task.Factory.StartNew(() => {
                 progress.workingLabel.Text = "Copying skin...";
                 progress.progressBar1.Value = 90;
                 if (progress.Cancelled) { progress.DialogResult = System.Windows.Forms.DialogResult.Cancel; }
@@ -178,6 +243,13 @@ namespace Oxygen.Modules
             Task.Factory.StartNew(() => { progress.DialogResult = System.Windows.Forms.DialogResult.OK; }, CancellationToken.None, TaskCreationOptions.None, context);
             progress.CLIResult = System.Windows.Forms.DialogResult.OK;
             progress.drawCLIProgressbar("Project Exported.", 100);
+
+            if (!Global.AutoExport & containsSfpFile)
+            {
+                if (MessageBox.Show("This skin contains CSS files that have to be injected using SFP. Do you want to download it?","SFP Required",MessageBoxButtons.YesNo) == DialogResult.Yes) {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://github.com/PhantomGamers/SFP/releases/latest") { UseShellExecute = true });
+                }
+            }
         }
         /// <summary>
         /// Return all .tga.xlm files in the specified <paramref name="path"/>
@@ -221,7 +293,7 @@ namespace Oxygen.Modules
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        private static string[] GetCSSFiles(string path)
+        private static string[] GetCSSFiles(string path, bool root = true)
         {
             string[] vgui_exts = new string[] { ".css" };
             List<string> paths = new List<string>();
@@ -231,7 +303,10 @@ namespace Oxygen.Modules
             }
             foreach (string dir in Directory.GetDirectories(path))
             {
-                paths.AddRange(GetCSSFiles(dir));
+                if (!(root & Path.GetFileName(dir) == "oxygen"))
+                {
+                    paths.AddRange(GetCSSFiles(dir, false));
+                }
             }
             return paths.ToArray();
         }

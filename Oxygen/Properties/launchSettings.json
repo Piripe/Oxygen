@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Oxygen": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-d"
     }
   }
 }

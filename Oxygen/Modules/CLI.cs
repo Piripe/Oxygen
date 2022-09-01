@@ -65,13 +65,20 @@ namespace Oxygen.Modules
             }
             CLI.WriteStart();
 
+
+
             switch (args[0])
             {
                 case "build":
+                    Global.AutoExport = true;
+                    Global.AutoReload = true;
+
                     Console.WriteLine("Building...");
                     LoadAndExport();
                     break;
                 case "watch":
+                    Global.AutoExport = true;
+                    Global.AutoReload = true;
 
                     if (Global.SkinConfig.skinPath != null)
                     {

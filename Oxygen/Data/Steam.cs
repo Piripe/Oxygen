@@ -9,6 +9,8 @@ namespace Oxygen.Data
 {
     public class Steam
     {
+        public static string SteamUIDir => Path.Join(SteamDir, "steamui");
+        public static string ClientUIDir => Path.Join(SteamDir, "clientui");
         public static string SkinsDir => Path.Join(SteamDir, "skins");
 
         [SupportedOSPlatform("windows")]
