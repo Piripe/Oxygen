@@ -178,8 +178,34 @@ namespace Oxygen.Modules
                     }
                     else
                     {
-                        System.IO.Compression.ZipFile.ExtractToDirectory(Global.SkinConfig.skinPath??"", Path.Combine(rootWorkingPath, "skin"));
-                        checkIfValidSkin();
+                        if (File.Exists(Global.SkinConfig.skinPath))
+                        {
+                            try
+                            {
+                                System.IO.Compression.ZipFile.ExtractToDirectory(Global.SkinConfig.skinPath ?? "", Path.Combine(rootWorkingPath, "skin"));
+                                checkIfValidSkin();
+                            }
+                            catch
+                            {
+                                MessageBox.Show("Can't extract the skin.");
+                                Task.Factory.StartNew(() => {
+                                    progress.DialogResult = DialogResult.Abort;
+                                }, CancellationToken.None, TaskCreationOptions.None, context);
+
+                                progress.CLIResult = DialogResult.Abort;
+                                progress.drawCLIProgressbar("Error while importing skin: Can't extract the skin.", 100);
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("Invalid skin.");
+                            Task.Factory.StartNew(() => {
+                                progress.DialogResult = DialogResult.Abort;
+                            }, CancellationToken.None, TaskCreationOptions.None, context);
+
+                            progress.CLIResult = DialogResult.Abort;
+                            progress.drawCLIProgressbar("Error while importing skin: Invalid skin.", 100);
+                        }
                     }
                 }
                 else

@@ -180,11 +180,13 @@ namespace Oxygen
                 }
             });
 
-            progressDialog.ShowDialog();
+            if (progressDialog.ShowDialog() == DialogResult.OK)
+            {
 
-            Global.Editor = new Forms.Editor();
-            Global.Editor.Show();
-            Close();
+                Global.Editor = new Forms.Editor();
+                Global.Editor.Show();
+                Close();
+            }
         }
 
         private void internetSkinPreviewPictureBox_Click(object sender, EventArgs e)
